@@ -1,0 +1,1899 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<title>Tribunal des Potes</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Jeu de soirée entre potes : votes, test de gentillesse, anecdotes et tier lists.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&family=Chakra+Petch:wght@500;600;700&family=Rubik:wght@400;500;600&display=swap">
+<style>
+/* Layout: one centered arcade column, navy pixel panels on a flat blue field, chunky notched buttons. Single fixed look. */
+:root{
+  --field:#5d6fd8; --field-2:#6b7ce0;
+  --panel:#1d3266; --panel-line:#c7d1ff; --ink:#eef1ff; --ink-dim:#a9b5ec;
+  --cyan:#74d4ef; --cyan-dk:#3a9fc2; --purple:#a35ae6; --purple-dk:#7232b5;
+  --green:#2fd06a; --green-dk:#159447; --gold:#f6c94c; --red:#e8484f; --on-light:#11264f;
+  --f-logo:"Silkscreen","Courier New",monospace;
+  --f-display:"Chakra Petch","Arial Narrow","Segoe UI",sans-serif;
+  --f-body:"Rubik","Segoe UI","Trebuchet MS",system-ui,sans-serif;
+  color-scheme:light;
+}
+html,body{min-height:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:linear-gradient(180deg,var(--field),var(--field-2));color:var(--ink);font-family:var(--f-body);font-size:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+#app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:22px}
+.eyebrow{font-family:var(--f-display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);opacity:.9;text-align:center}
+h1{font-family:var(--f-logo);font-weight:700;font-size:clamp(26px,7vw,40px);line-height:1.05;margin:0;text-align:center;text-wrap:balance;
+  color:var(--ink);text-shadow:3px 3px 0 var(--panel)}
+h2{font-family:var(--f-display);font-size:18px;margin:0;text-align:center;text-wrap:balance;line-height:1.35}
+p{margin:0}
+.muted{color:var(--ink-dim)}
+.small{font-size:13px}
+
+/* pixel panel */
+.panel{background:var(--panel);border:3px solid var(--panel-line);box-shadow:4px 4px 0 rgba(17,38,79,.45);padding:16px;width:100%}
+.panel-title{font-family:var(--f-display);font-size:12px;letter-spacing:.12em;text-align:center;margin-bottom:12px;text-transform:uppercase}
+
+/* chunky notched buttons */
+.btn{--c:var(--cyan);--d:var(--cyan-dk);--t:var(--on-light);
+  font-family:var(--f-display);font-weight:700;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--t);
+  background:var(--c);border:0;padding:12px 20px 14px;cursor:pointer;
+  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);
+  box-shadow:inset 0 -5px 0 var(--d),inset 0 3px 0 rgba(255,255,255,.35);transition:transform .08s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(2px)}
+.btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.btn[disabled]{filter:grayscale(.8) brightness(.8);cursor:not-allowed}
+.btn.purple{--c:var(--purple);--d:var(--purple-dk);--t:#fff}
+.btn.green{--c:var(--green);--d:var(--green-dk);--t:#0b331a;font-size:19px;padding:14px 28px 16px}
+.btn.ghost{--c:var(--panel);--d:#0f1f45;--t:var(--ink);font-size:13px;padding:9px 14px 11px}
+.btn.wide{width:100%}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;width:100%}
+
+/* code squares */
+.code{display:flex;gap:8px;justify-content:center}
+.code span{width:30px;height:34px;background:#f4f6ff;color:var(--on-light);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:20px;
+  box-shadow:inset 0 -3px 0 #c9d0ef}
+
+/* inputs */
+label.lab{font-family:var(--f-display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px}
+input.inp,textarea.inp{width:100%;box-sizing:border-box;font-family:var(--f-body);font-size:18px;color:var(--on-light);background:#f4f6ff;border:3px solid var(--panel-line);padding:10px 12px;outline:none}
+input.inp:focus,textarea.inp:focus{border-color:var(--gold)}
+input.code-inp{font-family:var(--f-display);letter-spacing:.3em;text-transform:uppercase;text-align:center;font-size:22px}
+textarea.inp{min-height:96px;resize:vertical}
+
+/* players */
+.players{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%}
+.pcard{background:var(--panel);border:3px solid var(--panel-line);width:104px;padding:20px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative}
+.pcard.me{border-color:var(--gold)}
+.pname{font-family:var(--f-display);font-size:12px;text-transform:uppercase;text-align:center;word-break:break-word}
+.crown{position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-size:22px;line-height:1}
+.av{width:52px;height:52px;display:grid;place-items:center;font-size:30px;line-height:1;
+  clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);
+  box-shadow:inset 0 -5px 0 rgba(0,0,0,.25),inset 0 4px 0 rgba(255,255,255,.3)}
+.av.sm{width:30px;height:30px;font-size:17px;clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)}
+.avpick{background:none;border:0;padding:0;cursor:pointer}
+.avpick:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+/* counts table */
+.counts{display:grid;grid-template-columns:1fr auto;gap:10px 14px;align-items:center}
+.counts .name{font-family:var(--f-display);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.stepper{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+.stepper b{min-width:58px;text-align:center}
+.round{width:26px;height:26px;border-radius:50%;border:0;background:#7f8fe6;color:#fff;font-size:18px;line-height:1;cursor:pointer;box-shadow:inset 0 -3px 0 #5466c9}
+.round:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.round[disabled]{opacity:.35;cursor:not-allowed}
+
+/* game */
+.progress{display:flex;justify-content:space-between;width:100%;font-family:var(--f-display);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.qcard{text-align:center;display:flex;flex-direction:column;gap:10px}
+.mode-chip{align-self:center;font-family:var(--f-display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:var(--gold);color:var(--on-light);padding:4px 10px}
+.choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;width:100%}
+.choice{background:#2a4486;border:3px solid #3f5aa3;color:var(--ink);padding:10px 8px;display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--f-body);font-size:16px;text-align:left;min-width:0}
+.choice span{min-width:0;overflow-wrap:anywhere}
+.choice.on{border-color:var(--gold);background:#3a4f93;box-shadow:0 0 0 2px var(--gold)}
+.choice:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.choice.big{font-size:18px;justify-content:center;text-align:center;padding:18px 12px}
+.waiting{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.wchip{display:flex;align-items:center;gap:6px;background:var(--panel);border:2px solid #3f5aa3;padding:4px 10px 4px 4px;font-size:13px}
+.wchip.done{border-color:var(--green)}
+.wchip .tick{font-family:var(--f-display);font-size:12px;color:var(--green)}
+
+/* tier */
+.tier-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 0;border-bottom:2px dashed #34508f}
+.tier-row:last-child{border-bottom:0}
+.tier-row .it{overflow-wrap:anywhere}
+.tbtns{display:flex;gap:4px}
+.tb{width:32px;height:32px;border:0;font-family:var(--f-display);font-weight:700;font-size:14px;cursor:pointer;color:var(--on-light);opacity:.45}
+.tb.on{opacity:1;box-shadow:inset 0 0 0 3px var(--on-light)}
+.tb:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.T0{background:#ff6f6f}.T1{background:#ffb36b}.T2{background:#ffe46b}.T3{background:#8ee08e}.T4{background:#73b9ff}
+.tierboard{display:flex;flex-direction:column;gap:4px}
+.tline{display:grid;grid-template-columns:48px 1fr;min-height:46px;background:#16285a}
+.tline .tl{display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:20px;color:var(--on-light)}
+.tline .ti{display:flex;flex-wrap:wrap;gap:6px;padding:6px;align-items:center}
+.titem{background:#2a4486;padding:4px 8px;font-size:14px}
+
+/* results */
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
+.bar-body{display:flex;flex-direction:column;gap:4px;min-width:0}
+.bar-top{display:flex;justify-content:space-between;gap:8px;font-size:15px}
+.bar-top b{font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.track{height:12px;background:#16285a}
+.fill{height:100%;background:var(--cyan);box-shadow:inset 0 -3px 0 var(--cyan-dk)}
+.bar.top .fill{background:var(--gold);box-shadow:inset 0 -3px 0 #c99a1e}
+.voters{font-size:12px;color:var(--ink-dim);overflow-wrap:anywhere}
+.split,.anec,.tierboard,.bars{width:100%}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.split .col{background:#16285a;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.split .col h3{font-family:var(--f-display);font-size:12px;margin:0;line-height:1.4;overflow-wrap:anywhere}
+.split .col.nice h3{color:var(--green)} .split .col.mean h3{color:#ff8f8f}
+.who{display:flex;align-items:center;gap:6px;font-size:14px;min-width:0}
+.who span{overflow-wrap:anywhere;min-width:0}
+.anec{display:flex;flex-direction:column;gap:10px}
+.anec .a{background:#16285a;padding:12px;border-left:4px solid var(--cyan);overflow-wrap:anywhere}
+.anec .by{margin-top:8px;font-family:var(--f-display);font-size:12px;color:var(--gold);text-transform:uppercase}
+.award{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;background:#16285a;padding:12px}
+.award .t{font-family:var(--f-display);font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+.award .n{font-size:18px;overflow-wrap:anywhere}
+.stack{display:flex;flex-direction:column;gap:12px;width:100%}
+.note{font-size:13px;color:var(--ink-dim);text-align:center;max-width:44ch;line-height:1.4}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--on-light);color:#fff;padding:10px 16px;font-size:14px;border:2px solid var(--panel-line);max-width:calc(100% - 32px)}
+.used{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:2px dashed #34508f;text-align:center}
+/* tier list : qui a voté quoi */
+.tvotes{display:flex;flex-direction:column;gap:10px;width:100%}
+.tcard{background:var(--panel);border:3px solid var(--panel-line);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.tcard-h{font-family:var(--f-display);font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;overflow-wrap:anywhere}
+.trow{display:grid;grid-template-columns:32px minmax(0,1fr);gap:8px;align-items:center}
+.tl-sm{width:32px;height:32px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--on-light)}
+.twho{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.wchip2{display:flex;align-items:center;gap:6px;background:#2a4486;padding:3px 8px 3px 3px;font-size:14px;min-width:0}
+.accusers .twho{gap:8px}
+.allvotes{width:100%}
+.allvotes summary{cursor:pointer;text-align:center;font-family:var(--f-display);font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink);padding:6px}
+.allvotes summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.allvotes .bars{margin-top:8px}
+/* versions */
+body[data-ver="hard"]{--field:#3d0f2b;--field-2:#6e1734}
+.vers{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.verbtn{font-family:var(--f-display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.04em;padding:10px 16px;border:3px solid #3f5aa3;background:#16285a;color:var(--ink);cursor:pointer}
+.verbtn.on.soft{border-color:var(--cyan);background:#1f4f7a}
+.verbtn.on.hard{border-color:#ff5a6a;background:#7a1a33}
+.verbtn[disabled]{cursor:default;opacity:1}
+.verbtn:not(.on)[disabled]{opacity:.45}
+.verbtn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.warn{margin:12px 0 0;padding:10px 12px;background:#5a1430;border-left:4px solid #ff5a6a;font-size:14px;line-height:1.45}
+/* musique */
+.music-btn{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));z-index:20;width:44px;height:44px;border:3px solid var(--panel-line);background:var(--panel);color:var(--ink);font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:3px 3px 0 rgba(17,38,79,.45)}
+.music-btn:focus-visible,.music-mute:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.music-panel{position:fixed;top:calc(60px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));z-index:20;width:220px;max-width:calc(100vw - 20px);background:var(--panel);border:3px solid var(--panel-line);padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:4px 4px 0 rgba(17,38,79,.45)}
+.music-title{font-family:var(--f-display);font-size:12px;text-transform:uppercase;letter-spacing:.1em;text-align:center}
+.music-row{display:flex;align-items:center;gap:10px}
+.music-row input{flex:1;min-width:0;accent-color:var(--gold)}
+.music-pct{font-family:var(--f-display);font-weight:700;font-size:14px;min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
+.music-mute{font-family:var(--f-display);font-weight:600;font-size:13px;padding:8px;border:2px solid #3f5aa3;background:#16285a;color:var(--ink);cursor:pointer}
+.music-note{margin:0;font-size:12px;color:var(--ink-dim);text-align:center}
+/* règles */
+.name-row{display:flex;align-items:center;gap:8px;min-width:0}
+.info{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--panel-line);background:transparent;color:var(--panel-line);font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:13px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.info:hover,.info.on{background:var(--gold);border-color:var(--gold);color:var(--on-light)}
+.info:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.rules{grid-column:1 / -1;background:#16285a;border-left:4px solid var(--gold);padding:10px 12px;font-size:14px;line-height:1.45;color:var(--ink);margin-top:-4px}
+/* nouveaux jeux */
+.timer{font-family:var(--f-display);font-size:44px;font-weight:700;color:var(--gold);text-align:center;font-variant-numeric:tabular-nums;line-height:1}
+.split .col.opt h3{color:var(--cyan)} .split .col.opt2 h3{color:#d9a6ff}
+.big-verdict{width:100%;border:3px solid var(--panel-line)}
+.big-verdict.good{border-color:var(--green)} .big-verdict.bad{border-color:var(--red)}
+.big-verdict .n{font-family:var(--f-display);font-size:20px}
+.vtag{display:inline-block;margin-top:6px;font-family:var(--f-display);font-size:12px;text-transform:uppercase;padding:3px 8px;background:var(--gold);color:var(--on-light)}
+/* recap */
+.recap{display:flex;flex-direction:column}
+.rline{display:flex;flex-direction:column;gap:3px;padding:9px 0;border-bottom:2px dashed #34508f;min-width:0}
+.rline:last-child{border-bottom:0}
+.rq{font-size:14px;color:var(--ink-dim);overflow-wrap:anywhere}
+.ra{font-size:17px;overflow-wrap:anywhere}
+.ra.good{color:#7ff0a8}.ra.bad{color:#ff9a9a}
+/* admin */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:100%}
+.tab{font-family:var(--f-display);font-size:12px;text-transform:uppercase;letter-spacing:.04em;background:var(--panel);color:var(--ink);border:2px solid #3f5aa3;padding:7px 9px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.tab.on{border-color:var(--gold);background:#2a4486}
+.tab:focus-visible,.del:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.tab .cnt{background:#7f8fe6;color:#fff;padding:1px 5px;font-size:10px}
+.qlist{display:flex;flex-direction:column;gap:8px}
+.qrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;background:#16285a;padding:10px 10px 10px 12px}
+.qtxt{display:flex;flex-direction:column;gap:3px;min-width:0;overflow-wrap:anywhere;line-height:1.3}
+.del{width:32px;height:32px;border:0;background:#4a2440;color:#ff9a9a;font-family:var(--f-display);font-size:14px;cursor:pointer;flex:none}
+.del:hover{background:var(--red);color:#fff}
+.fields{display:flex;flex-direction:column;gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--gold)}
+@media (max-width:420px){.two{grid-template-columns:1fr}}
+@media (max-width:420px){.btn{font-size:14px;padding:11px 14px 13px}.btn.green{font-size:16px}.pcard{width:92px}.split{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+/* ============================================================
+   QUESTIONS — remplace ou complète ces listes.
+   u : « Une seule réponse »  → texte de la question
+   d : « Deux réponses »      → texte de la question
+   g : « Test de gentillesse » → { q, a:[choix gentil, choix pas gentil] }
+   a : « Thèmes anecdotes »   → thème à raconter
+   t : « Les tier list »      → { q, items:[...] }  (items:null = classer les joueurs)
+   ============================================================ */
+const DEFAULT_BANK = {
+  u: [
+    "Qui est le plus susceptible de rater son avion ?",
+    "Qui est le plus susceptible de devenir célèbre pour une raison ridicule ?",
+    "Qui est le plus susceptible de dire « j'arrive » alors qu'il est encore sous la douche ?",
+    "Qui survivrait le plus longtemps à une apocalypse zombie ?",
+    "Qui est le plus susceptible d'oublier l'anniversaire de son meilleur pote ?",
+    "Qui est le plus susceptible de pleurer devant un dessin animé ?",
+    "Qui est le plus susceptible de dépenser tout son salaire en une soirée ?",
+    "Qui est le plus susceptible de se perdre même avec un GPS ?"
+  ],
+  d: [
+    "Avec quels deux potes tu partirais en road trip ?",
+    "Quels deux joueurs se disputeraient en premier sur une île déserte ?",
+    "Qui sont les deux pires cuisiniers du groupe ?",
+    "Quels deux potes formeraient le pire duo de braqueurs ?",
+    "Quels deux potes mettrais-tu en coloc juste pour voir ce qui se passe ?",
+    "Qui sont les deux plus grands menteurs du groupe ?"
+  ],
+  g: [
+    { q: "Ton pote te confie un secret lourd, et le groupe en parle sans savoir.", a: ["Je garde le secret", "Je lâche un indice"] },
+    { q: "Il reste une part de pizza et ton pote dort.", a: ["Je la garde pour lui", "Je la mange"] },
+    { q: "Ton pote a chanté faux au karaoké et te demande ton avis.", a: ["« T'étais incroyable »", "« Franchement, c'était dur »"] },
+    { q: "Tu trouves un portefeuille avec 100 € dedans.", a: ["Je le rapporte en entier", "Je prends une « récompense »"] },
+    { q: "Ton pote revient avec une coupe ratée.", a: ["Je le complimente quand même", "Photo dans le groupe"] },
+    { q: "Ton pote te demande de l'aider à déménager dimanche à 8 h.", a: ["Je viens", "J'invente une excuse"] }
+  ],
+  a: [
+    "Le moment où tu t'es senti le plus seul",
+    "Un secret que tu n'as jamais raconté à personne ici",
+    "La fois où tu as eu le plus peur de ta vie",
+    "Ton plus grand regret",
+    "La dernière fois que tu as pleuré, et pourquoi",
+    "Une fois où tu as été jaloux de quelqu'un ici",
+    "Ta première impression sur quelqu'un de ce groupe",
+    "Ton plus gros chagrin d'amour",
+    "Une chose que tu n'oses pas dire à tes parents"
+  ],
+  t: [
+    { q: "Classe tes potes : à qui tu confierais ton plus gros secret ?", items: null },
+    { q: "Classe tes potes : qui te connaît le mieux ?", items: null },
+    { q: "Classe tes potes : qui serait là pour toi à 3 h du matin ?", items: null },
+    { q: "Classe tes potes : qui a le plus changé depuis que tu le connais ?", items: null },
+    { q: "Classe tes potes : qui cache le mieux ses émotions ?", items: null },
+    { q: "Ce qui compte le plus dans ta vie", items: ["Mes potes", "Ma famille", "L'amour", "L'argent", "Ma carrière", "Ma santé", "Ma liberté"] },
+    { q: "Tes plus grandes peurs", items: ["Finir seul", "Décevoir mes parents", "Échouer", "Perdre mes potes", "Vieillir", "Passer à côté de ma vie"] }
+  ],
+  p: [
+    { a: ["Lire dans les pensées de tes potes", "Que tes potes lisent dans les tiennes"] },
+    { a: ["Que ton historique internet passe sur un écran géant", "Que tes parents lisent tous tes messages"] },
+    { a: ["Ne plus jamais manger de fromage", "Ne plus jamais manger de chocolat"] },
+    { a: ["Toujours arriver 30 min en retard", "Toujours arriver 1 h en avance"] },
+    { a: ["Être célèbre pour une vidéo gênante", "Ne jamais être connu de personne"] },
+    { a: ["Revivre ta pire honte devant tout le monde", "Raconter ton pire secret à ce groupe"] },
+    { a: ["Vivre un an sans téléphone", "Vivre un an sans voir tes potes"] },
+    { a: ["Parler comme un pirate pour toujours", "Chanter tout ce que tu dis"] },
+    { a: ["Sortir avec l'ex de ton meilleur pote", "Que ton meilleur pote sorte avec ton ex"] },
+    { a: ["Avoir 10 € par jour à vie", "Avoir 50 000 € tout de suite"] },
+    { a: ["Dire tout ce que tu penses pendant 24 h", "Ne plus pouvoir parler pendant une semaine"] },
+    { a: ["Que ton crush voie ta galerie photo", "Que ta mère voie ta galerie photo"] }
+  ],
+  n: [
+    "Je n'ai jamais stalké un ex sur les réseaux",
+    "Je n'ai jamais fait semblant d'être malade pour éviter une soirée",
+    "Je n'ai jamais envoyé un message à la mauvaise personne",
+    "Je n'ai jamais menti sur mon âge",
+    "Je n'ai jamais lu les messages de quelqu'un en cachette",
+    "Je n'ai jamais dit « je suis en route » alors que j'étais encore chez moi",
+    "Je n'ai jamais oublié le prénom de quelqu'un en pleine conversation",
+    "Je n'ai jamais ghosté quelqu'un",
+    "Je n'ai jamais été recalé à l'entrée d'une soirée",
+    "Je n'ai jamais dit du mal d'un pote qui est ici ce soir",
+    "Je n'ai jamais regretté une coupe de cheveux",
+    "Je n'ai jamais fait un vocal de plus de 5 minutes",
+    "Je n'ai jamais liké une vieille photo par accident en stalkant",
+    "Je n'ai jamais pleuré pour obtenir quelque chose"
+  ],
+  i: [
+    { q: "Combien d'heures tu dors par nuit ?", f: "Combien d'heures tu passes sur ton téléphone par jour ?" },
+    { q: "Note ta cuisine sur 10", f: "Note ta beauté sur 10" },
+    { q: "Combien de cafés tu bois par semaine ?", f: "Combien de douches tu prends par semaine ?" },
+    { q: "À quel âge tu as eu ton premier téléphone ?", f: "À quel âge tu as eu ton premier bisou ?" },
+    { q: "Combien de pays tu as visités ?", f: "Combien d'ex tu as ?" },
+    { q: "Combien d'amis proches tu as ?", f: "Combien de fois tu as menti cette semaine ?" },
+    { q: "Note ton niveau en danse sur 10", f: "Note ton niveau de jalousie sur 10" },
+    { q: "Combien de minutes tu mets à te préparer le matin ?", f: "Combien de minutes tu tiens sans regarder ton téléphone ?" },
+    { q: "Combien de paires de chaussures tu as ?", f: "Combien de personnes tu as bloquées sur les réseaux ?" },
+    { q: "Combien d'euros tu dépenses en moyenne en soirée ?", f: "Combien de messages non lus tu as en ce moment ?" }
+  ],
+  x: [
+    "Manger la dernière part sans demander",
+    "Lâcher le groupe au dernier moment",
+    "Ne jamais rendre l'argent prêté",
+    "Répéter les secrets des autres",
+    "Être toujours en retard",
+    "Laisser les messages en vu pendant des jours",
+    "Tricher aux jeux de société",
+    "Disparaître au moment de payer l'addition",
+    "Parler de son ex à chaque soirée",
+    "Squatter chez les autres sans jamais inviter"
+  ]
+};
+
+/* Questions supplémentaires (ajoutées à la liste de départ) */
+const EXTRA_BANK = {
+  u: [
+    "Qui est le plus susceptible de se marier en premier ?",
+    "Qui est le plus susceptible de répondre à un message trois jours après ?",
+    "Qui est le plus susceptible de tomber amoureux en vacances ?",
+    "Qui est le plus susceptible de se faire arnaquer sur internet ?",
+    "Qui est le plus susceptible de devenir millionnaire ?",
+    "Qui est le plus susceptible de s'endormir en pleine soirée ?",
+    "Qui est le plus susceptible de balancer un secret sans faire exprès ?",
+    "Qui est le plus susceptible de partir vivre à l'autre bout du monde ?",
+    "Qui est le plus susceptible de stalker son crush pendant des heures ?",
+    "Qui est le plus susceptible d'envoyer un message en soirée qu'il regrettera le lendemain ?",
+    "Qui a le pire goût musical du groupe ?",
+    "Qui est le plus susceptible de finir dans une émission de télé-réalité ?"
+  ],
+  d: [
+    "Quels deux potes finiraient ensemble ?",
+    "Qui sont les deux plus gros râleurs du groupe ?",
+    "Quels deux potes appelles-tu en cas de galère à 3 h du matin ?",
+    "Qui sont les deux plus mauvais perdants ?",
+    "Quels deux potes mourraient en premier dans un film d'horreur ?",
+    "Qui sont les deux plus gros dragueurs ?",
+    "Quels deux potes feraient le pire podcast ?",
+    "Qui sont les deux qui parlent le plus fort ?"
+  ],
+  g: [
+    { q: "Ton pote te présente son nouveau crush, que tu trouves bof.", a: ["Je le soutiens", "Je le clashe devant tout le monde"] },
+    { q: "Ton pote traverse une période dure mais fait comme si tout allait bien.", a: ["Je prends de ses nouvelles en privé", "Je fais comme si de rien n'était"] },
+    { q: "Ton pote t'avoue qu'il a des sentiments pour toi, mais ce n'est pas réciproque.", a: ["Je lui parle avec douceur", "Je l'évite pendant des semaines"] },
+    { q: "Ton pote vient de se faire larguer et veut parler à 2 h du matin.", a: ["J'écoute jusqu'au bout", "Je réponds « dodo »"] },
+    { q: "Ton pote a oublié ton anniversaire.", a: ["Je laisse passer", "Je lui rappelle toute l'année"] },
+    { q: "Tu apprends que la personne avec qui ton pote est en couple le trompe.", a: ["Je lui dis", "Je fais comme si je ne savais rien"] },
+    { q: "Ton pote craque et pleure devant toi pour la première fois.", a: ["Je le prends dans mes bras", "Je change de sujet, gêné"] },
+    { q: "Ton pote te demande ce que tu penses vraiment de son couple, qui lui fait du mal.", a: ["Je lui dis la vérité avec tact", "Je dis que tout va bien"] }
+  ],
+  p: [
+    { a: ["Que tes potes écoutent tous tes vocaux", "Que tes potes lisent ton journal intime"] },
+    { a: ["Être toujours trop habillé", "Être toujours pas assez habillé"] },
+    { a: ["Avoir un rire de phoque", "Avoir un éternuement de 10 secondes"] },
+    { a: ["Perdre ton téléphone", "Perdre ton portefeuille"] },
+    { a: ["Ne plus jamais faire de soirée", "Ne plus jamais partir en vacances"] },
+    { a: ["Être le plus drôle du groupe", "Être le plus beau du groupe"] },
+    { a: ["Que ton ex soit à toutes tes soirées", "Que tes parents soient à toutes tes soirées"] },
+    { a: ["Connaître ton avenir", "Pouvoir changer ton passé"] },
+    { a: ["Manger épicé à chaque repas", "Manger sans sel toute ta vie"] },
+    { a: ["Vivre sans musique", "Vivre sans séries ni films"] }
+  ],
+  n: [
+    "Je n'ai jamais dragué sur une appli de rencontre",
+    "Je n'ai jamais fait semblant de connaître une chanson",
+    "Je n'ai jamais mangé quelque chose tombé par terre",
+    "Je n'ai jamais eu un fou rire à un moment super mal placé",
+    "Je n'ai jamais menti pendant cette partie",
+    "Je n'ai jamais séché les cours ou le travail pour dormir",
+    "Je n'ai jamais supprimé un message avant que l'autre le lise",
+    "Je n'ai jamais eu un crush sur le copain ou la copine d'un pote",
+    "Je n'ai jamais débarqué dans une soirée sans être invité",
+    "Je n'ai jamais pleuré en écoutant une chanson dans les transports"
+  ],
+  a: [
+    "Le jour où tu as été le plus fier de toi",
+    "Un mensonge que tu as dit à quelqu'un ici",
+    "Ce qui te complexe le plus",
+    "Une fois où un pote d'ici t'a aidé sans le savoir",
+    "Ton premier crush, et comment ça s'est terminé",
+    "Ce que tu changerais si tu pouvais tout recommencer",
+    "Une peur que personne ici ne connaît"
+  ],
+  t: [
+    { q: "Classe tes potes : avec qui tu partirais un mois en voyage ?", items: null },
+    { q: "Classe tes potes : qui donne les meilleurs conseils en amour ?", items: null },
+    { q: "Classe tes potes : qui est le plus mauvais menteur ?", items: null },
+    { q: "Ce que tu pardonnerais à un pote", items: ["Un gros mensonge", "Oublier ton anniversaire", "Sortir avec ton ex", "Répéter un secret", "Te lâcher le jour J", "Ne jamais te rembourser"] },
+    { q: "Ce qui compte le plus chez un pote", items: ["Loyauté", "Humour", "Honnêteté", "Générosité", "Écoute", "Toujours dispo"] },
+    { q: "Les dealbreakers en amour", items: ["Jaloux", "Menteur", "Radin", "Pas d'humour", "Toujours sur son téléphone", "Ne s'entend pas avec mes potes"] }
+  ],
+  i: [
+    { q: "Combien de verres tu bois en soirée ?", f: "Combien d'heures tu dors le week-end ?" },
+    { q: "Note ton humour sur 10", f: "Note ta mauvaise foi sur 10" },
+    { q: "Combien de fois tu as déménagé ?", f: "Combien de fois tu as eu le cœur brisé ?" },
+    { q: "Combien de séries tu regardes en même temps ?", f: "Combien d'applis de rencontre tu as testées ?" },
+    { q: "À quelle heure tu te couches en semaine ?", f: "À quelle heure tu te lèves le week-end ?" },
+    { q: "Combien de groupes WhatsApp tu as ?", f: "Combien de fois par jour tu regardes tes stories ?" },
+    { q: "Note ton sens de l'orientation sur 10", f: "Note ta patience sur 10" },
+    { q: "Combien de livres tu lis par an ?", f: "Combien de fois par mois tu vas au fast-food ?" }
+  ],
+  x: [
+    "Envoyer des vocaux de 10 minutes",
+    "Toujours être à zéro pour cent de batterie",
+    "Spoiler les séries",
+    "Monopoliser l'enceinte en soirée",
+    "Piquer dans l'assiette des autres",
+    "Rire à ses propres blagues",
+    "Mettre tout en story",
+    "Ne jamais répondre dans le groupe"
+  ]
+};
+for (const k in EXTRA_BANK) DEFAULT_BANK[k] = DEFAULT_BANK[k].concat(EXTRA_BANK[k]);
+
+/* Questions ajoutées le 19/10 */
+const EXTRA2_BANK = {
+  u: [
+    "Qui est le plus susceptible de pleurer à un mariage ?",
+    "Qui est le plus susceptible d'avoir un compte secret sur les réseaux ?",
+    "Qui est le plus susceptible de se remettre avec son ex ?",
+    "Qui est le plus susceptible de garder un secret toute sa vie ?",
+    "Qui est le plus susceptible de tout plaquer sur un coup de tête ?",
+    "Qui est le plus susceptible de devenir parent en premier ?",
+    "Qui est le plus susceptible de mentir pour éviter un conflit ?",
+    "Qui est le plus susceptible d'appeler sa mère pour un conseil en pleine soirée ?",
+    "Qui est le plus susceptible de tomber amoureux de quelqu'un du groupe ?",
+    "Qui a le plus changé depuis qu'on se connaît ?",
+    "Qui ferait le meilleur confident du groupe ?",
+    "Qui cache le mieux quand ça ne va pas ?"
+  ],
+  d: [
+    "Quels deux potes se connaissent le mieux ?",
+    "Quels deux potes devraient se parler plus ?",
+    "Qui sont les deux plus fidèles en amitié ?",
+    "Quels deux potes gardent le plus de secrets ?",
+    "Quels deux potes feraient les meilleurs colocs ?",
+    "Qui sont les deux plus sensibles du groupe ?",
+    "Quels deux potes se chamaillent le plus souvent ?",
+    "Quels deux potes appellerais-tu en premier pour annoncer une grande nouvelle ?"
+  ],
+  g: [
+    { q: "Ton pote a raté un examen important et se sent nul.", a: ["Je le rassure", "Je lui rappelle que moi, je l'ai eu"] },
+    { q: "Ton pote te montre un texte très personnel qu'il a écrit.", a: ["Je le lis sérieusement", "Je le lis à voix haute en rigolant"] },
+    { q: "Ton pote n'a pas été invité à une soirée où tu vas.", a: ["Je lui en parle franchement", "Je poste des stories toute la soirée"] },
+    { q: "Ton pote te confie quelque chose de très intime sur lui.", a: ["Je le remercie de sa confiance", "Je change vite de sujet"] },
+    { q: "Ton pote est vraiment dans la galère et te demande de l'argent.", a: ["Je l'aide comme je peux", "Je fais semblant d'être à sec"] },
+    { q: "Ton pote a dit du mal de toi et vient s'excuser sincèrement.", a: ["Je lui pardonne", "Je le laisse mariner"] },
+    { q: "Ton pote part vivre loin et organise un pot de départ.", a: ["Je viens, même si c'est loin", "Je trouve une excuse"] },
+    { q: "Ton pote a un gros coup de blues le jour de ton anniversaire.", a: ["Je prends du temps pour lui", "Je lui rappelle que c'est MA journée"] }
+  ],
+  p: [
+    { a: ["Savoir ce que tes potes disent de toi quand tu n'es pas là", "Ne jamais le savoir"] },
+    { a: ["Revivre ta meilleure année", "Découvrir ta prochaine année à l'avance"] },
+    { a: ["Un pote qui te dit toujours la vérité", "Un pote qui te soutient quoi qu'il arrive"] },
+    { a: ["Oublier ta pire honte", "Oublier ton meilleur souvenir"] },
+    { a: ["Que ton crush lise ce que tu dis de lui à tes potes", "Que tes potes lisent ce que tu dis d'eux à ton crush"] },
+    { a: ["Être en couple avec quelqu'un que tes potes n'aiment pas", "Rester célibataire cinq ans"] },
+    { a: ["Pouvoir revenir en arrière une seule fois", "Voir dix ans dans le futur une seule fois"] },
+    { a: ["Toujours dire ce que tu ressens", "Ne jamais montrer tes émotions"] },
+    { a: ["Vivre en coloc avec tes potes", "Vivre seul"] },
+    { a: ["Avoir un seul meilleur ami", "Avoir dix bons potes"] }
+  ],
+  n: [
+    "Je n'ai jamais eu un crush sur quelqu'un de ce groupe",
+    "Je n'ai jamais lu les messages de mon copain ou ma copine en cachette",
+    "Je n'ai jamais dit « je t'aime » sans le penser",
+    "Je n'ai jamais pleuré à cause de quelqu'un ici",
+    "Je n'ai jamais menti à quelqu'un ici pour ne pas le blesser",
+    "Je n'ai jamais regretté de m'être confié à quelqu'un",
+    "Je n'ai jamais écrit à un ex à 2 h du matin",
+    "Je n'ai jamais été jaloux du couple d'un pote",
+    "Je n'ai jamais fait semblant d'aller bien pendant des semaines",
+    "Je n'ai jamais fouillé dans le téléphone de quelqu'un",
+    "Je n'ai jamais annulé un plan avec un pote pour un date",
+    "Je n'ai jamais gardé un secret qui concerne quelqu'un ici"
+  ],
+  a: [
+    "Le meilleur conseil qu'on t'ait jamais donné",
+    "Le moment où tu as su que quelqu'un ici était un vrai pote",
+    "Une chose que tu regrettes de ne pas avoir dite à quelqu'un",
+    "Ton souvenir le plus fort avec ce groupe",
+    "La fois où tu t'es senti vraiment incompris",
+    "Une personne qui a changé ta vie, et comment",
+    "Ce que tu aimerais que tes potes sachent sur toi",
+    "Ton plus beau souvenir d'enfance"
+  ],
+  t: [
+    { q: "Classe tes potes : qui est le plus loyal ?", items: null },
+    { q: "Classe tes potes : qui garde le mieux un secret ?", items: null },
+    { q: "Classe tes potes : qui a le plus grand cœur ?", items: null },
+    { q: "Classe tes potes : qui ferait le meilleur parent ?", items: null },
+    { q: "Classe tes potes : qui pleure le plus facilement ?", items: null },
+    { q: "Ce qui te rend le plus heureux", items: ["Mes potes", "Ma famille", "La musique", "Voyager", "L'amour", "Le sport", "Dormir"] },
+    { q: "Les pires façons de se faire larguer", items: ["Par SMS", "Par un pote", "En public", "Sans explication", "Le jour de ton anniversaire", "Par vocal"] },
+    { q: "Les moments où tu as le plus besoin de tes potes", items: ["Chagrin d'amour", "Problème de famille", "Gros échec", "Grande nouvelle", "Coup de blues", "Déménagement"] }
+  ],
+  i: [
+    { q: "Note ta confiance en toi sur 10", f: "Note ta peur de l'engagement sur 10" },
+    { q: "Combien de vrais amis tu as ?", f: "Combien de personnes tu as déjà embrassées ?" },
+    { q: "À quel âge tu voudrais avoir des enfants ?", f: "À quel âge tu as eu ta première peine de cœur ?" },
+    { q: "Combien de fois tu as pleuré cette année ?", f: "Combien de fois tu as menti à tes parents ce mois-ci ?" },
+    { q: "Note ton besoin d'attention sur 10", f: "Note ta jalousie en couple sur 10" },
+    { q: "Combien d'heures tu peux passer seul sans parler à personne ?", f: "Combien de jours tu tiendrais sans réseaux sociaux ?" },
+    { q: "Combien de personnes de ce groupe tu appellerais en pleine nuit ?", f: "Combien de personnes de ce groupe connaissent ton plus gros secret ?" },
+    { q: "Note ta relation avec ta famille sur 10", f: "Note ton envie de partir vivre à l'étranger sur 10" }
+  ],
+  x: [
+    "Ne jamais demander de nouvelles en premier",
+    "Disparaître dès qu'il est en couple",
+    "Raconter les histoires des autres à sa sauce",
+    "Promettre de venir et ne jamais venir",
+    "Ne jamais avouer qu'il a tort",
+    "Être jaloux des autres amitiés du groupe",
+    "Faire la tête sans dire pourquoi",
+    "Garder rancune pendant des mois"
+  ]
+};
+for (const k in EXTRA2_BANK) DEFAULT_BANK[k] = DEFAULT_BANK[k].concat(EXTRA2_BANK[k]);
+
+/* ===== Version HARDCORE (18+) ===== */
+const DEFAULT_HC = {
+  u: [
+    "Qui est le plus susceptible de coucher le premier soir ?",
+    "Qui est le plus susceptible d'avoir des photos compromettantes dans son téléphone ?",
+    "Qui est le plus susceptible de tromper son copain ou sa copine ?",
+    "Qui est le plus susceptible de finir avec l'ex d'un pote ?",
+    "Qui a le plus gros body count du groupe ?",
+    "Qui est le plus susceptible de tenter un plan à trois ?",
+    "Qui est le plus susceptible de se réveiller sans savoir où il est ?",
+    "Qui est le plus susceptible de draguer quelqu'un en couple ?",
+    "Qui est le plus susceptible de sortir avec un collègue ?",
+    "Qui est le plus susceptible de vomir ce soir ?",
+    "Qui est le plus susceptible d'envoyer un nude à la mauvaise personne ?",
+    "Qui ment le plus sur sa vie amoureuse ?",
+    "Qui est le plus hypocrite du groupe ?",
+    "Qui parle le plus dans le dos des autres ?",
+    "Qui a le plus de dossiers sur tout le monde ?"
+  ],
+  d: [
+    "Quels deux potes se sont déjà embrassés, à ton avis ?",
+    "Quels deux potes formeraient le couple le plus explosif ?",
+    "Quels deux potes finiraient ensemble après une soirée trop arrosée ?",
+    "Qui sont les deux plus hypocrites du groupe ?",
+    "Qui seraient les deux pires ex possibles ?",
+    "Quels deux potes ont le plus de dossiers l'un sur l'autre ?",
+    "Qui sont les deux plus gros fêtards ?",
+    "Quels deux potes tu ne laisserais jamais seuls avec ton copain ou ta copine ?",
+    "Qui sont les deux pires menteurs en couple ?",
+    "Quels deux potes sont les plus jaloux ?"
+  ],
+  g: [
+    { q: "Ton pote est bourré et drague ton ex devant toi.", a: ["Je le ramène gentiment", "Je filme tout"] },
+    { q: "Tu tombes sur la personne avec qui ton pote est en couple… sur Tinder.", a: ["Je préviens mon pote", "Je swipe à droite"] },
+    { q: "Ton pote t'envoie la photo de son date pour avoir ton avis, et c'est pas ouf.", a: ["Je trouve un compliment", "Je fais un screen pour le groupe"] },
+    { q: "Ton pote a vomi dans ta voiture.", a: ["Je nettoie sans rien dire", "Je le raconte à tout le monde"] },
+    { q: "Ton pote ramène quelqu'un et il n'y a qu'un seul lit.", a: ["Je prends le canapé", "Je reste dans le lit"] },
+    { q: "Ton pote a un date chez lui et te demande de libérer l'appart.", a: ["Je pars sans discuter", "Je m'installe dans le salon"] },
+    { q: "Tu tombes sur des messages coquins dans le téléphone de ton pote.", a: ["Je referme direct", "Je les lis à voix haute"] },
+    { q: "Ton pote s'est pris un râteau monumental en soirée.", a: ["Je le console", "Je l'imite toute la soirée"] },
+    { q: "Ton pote te confie qu'il a trompé quelqu'un.", a: ["Je lui parle en privé", "Je le raconte au groupe"] },
+    { q: "Ton pote est en PLS le lendemain de soirée.", a: ["Je lui apporte à manger", "Je lui envoie des photos de kebab"] }
+  ],
+  p: [
+    { a: ["Recroiser ton ex une dernière fois", "Ne plus jamais le revoir"] },
+    { a: ["Que tes parents tombent sur ton historique", "Que ton patron tombe dessus"] },
+    { a: ["Un date parfait mais sans suite", "Un date nul qui finit chez toi"] },
+    { a: ["Un an sans alcool", "Un an sans aucun date"] },
+    { a: ["Embrasser quelqu'un de ce groupe", "Embrasser l'ex d'un pote"] },
+    { a: ["Que ton crush voie ta galerie privée", "Que tes potes la voient"] },
+    { a: ["Te faire surprendre par tes parents", "Surprendre tes parents"] },
+    { a: ["Lire tous les messages de ton ou ta partenaire", "Qu'il ou elle lise tous les tiens"] },
+    { a: ["Une relation libre", "Une relation à distance"] },
+    { a: ["Coucher le premier soir", "Attendre trois mois"] },
+    { a: ["Raconter ta pire expérience au lit", "Raconter ta pire cuite"] },
+    { a: ["Sortir avec quelqu'un de très beau mais ennuyeux", "Quelqu'un de moche mais hilarant"] }
+  ],
+  n: [
+    "Je n'ai jamais couché le premier soir",
+    "Je n'ai jamais envoyé de nude",
+    "Je n'ai jamais embrassé quelqu'un de ce groupe",
+    "Je n'ai jamais trompé quelqu'un",
+    "Je n'ai jamais remis le couvert avec un ex après la rupture",
+    "Je n'ai jamais fait de câlin coquin dans un lieu public",
+    "Je n'ai jamais simulé",
+    "Je n'ai jamais vomi à cause de l'alcool",
+    "Je n'ai jamais oublié une soirée entière",
+    "Je n'ai jamais embrassé deux personnes dans la même soirée",
+    "Je n'ai jamais oublié le prénom de quelqu'un avec qui j'ai passé la nuit",
+    "Je n'ai jamais été surpris dans un moment intime",
+    "Je n'ai jamais eu de sex friend",
+    "Je n'ai jamais dragué le crush d'un pote",
+    "Je n'ai jamais menti sur mon body count",
+    "Je n'ai jamais fantasmé sur quelqu'un de ce groupe"
+  ],
+  a: [
+    "Ta pire expérience au lit",
+    "Ta cuite la plus honteuse",
+    "Le date le plus gênant de ta vie",
+    "Le truc le plus fou que tu aies fait pour séduire quelqu'un",
+    "Le pire endroit où tu as embrassé quelqu'un",
+    "Ton pire réveil chez quelqu'un",
+    "La fois où tu t'es fait griller",
+    "Ton plus gros râteau",
+    "La pire chose que tu aies dite sur quelqu'un ici",
+    "Ce que tu n'as jamais osé avouer à un ex",
+    "Ta plus grosse connerie sous alcool",
+    "Un secret de couple que tu n'as jamais raconté"
+  ],
+  t: [
+    { q: "Classe tes potes : qui est le meilleur coup, à ton avis ?", items: null },
+    { q: "Classe tes potes : qui a le plus gros body count ?", items: null },
+    { q: "Classe tes potes : qui tient le moins l'alcool ?", items: null },
+    { q: "Classe tes potes : avec qui tu sortirais en premier ?", items: null },
+    { q: "Classe tes potes : qui est le plus hypocrite ?", items: null },
+    { q: "Classe tes potes : qui est le plus toxique en couple ?", items: null },
+    { q: "Les pires turn-offs", items: ["Mauvaise haleine", "Garder ses chaussettes", "Parler de son ex", "Trop d'emojis", "Fautes d'orthographe", "Radin"] },
+    { q: "Les alcools de soirée", items: ["Vodka", "Rhum", "Tequila", "Whisky", "Bière", "Rosé", "Jäger"] },
+    { q: "Les pires excuses pour ne pas rappeler", items: ["J'ai perdu mon téléphone", "J'étais débordé", "Je sors d'une relation", "C'est pas toi, c'est moi", "Le ghosting pur", "Un « vu » sans réponse"] },
+    { q: "Les pires lieux pour un premier date", items: ["Fast-food", "Chez ses parents", "Salle de sport", "Bowling", "Mariage de son ex", "Cinéma"] }
+  ],
+  i: [
+    { q: "Combien de personnes tu as embrassées cette année ?", f: "Quel est ton body count ?" },
+    { q: "Note ta cuisine sur 10", f: "Note tes talents au lit sur 10" },
+    { q: "À quel âge tu as eu ton premier bisou ?", f: "À quel âge tu as eu ta première fois ?" },
+    { q: "Combien de verres il te faut pour être bourré ?", f: "Combien de dates tu as eus cette année ?" },
+    { q: "Combien de fois tu t'es fait tromper ?", f: "Combien de fois tu as trompé ?" },
+    { q: "Combien d'ex tu as encore en contact ?", f: "Combien d'ex tu reprendrais ?" },
+    { q: "Note ta jalousie sur 10", f: "Note ton envie d'embrasser quelqu'un d'ici sur 10" },
+    { q: "Combien d'applis de rencontre tu as ?", f: "Combien de matchs tu as eus ce mois-ci ?" },
+    { q: "Combien de fois tu as vomi en soirée ?", f: "Combien de fois tu t'es réveillé chez un inconnu ?" },
+    { q: "Combien de minutes dure ta douche ?", f: "Combien de minutes dure ton record au lit ?" }
+  ],
+  x: [
+    "Avoir déjà trompé quelqu'un",
+    "Draguer tout ce qui bouge en soirée",
+    "Écrire à son ex dès qu'il a bu",
+    "Mentir sur son body count",
+    "Parler dans le dos des autres",
+    "Disparaître avec quelqu'un à chaque soirée",
+    "Être le plus hypocrite du groupe",
+    "Avoir un dossier sur chacun d'entre nous",
+    "Stalker les ex de ses potes",
+    "Passer la nuit avec quelqu'un puis le ghoster",
+    "Raconter sa vie intime à tout le monde",
+    "Draguer le crush d'un pote"
+  ]
+};
+
+/* Hardcore : lot n°2 (plus coquin) */
+const HC2 = {
+  u: [
+    "Qui est le plus susceptible d'avoir un fantasme inavouable ?",
+    "Qui est le plus susceptible d'avoir déjà utilisé des menottes ?",
+    "Qui est le plus susceptible d'avoir un tiroir secret plein de jouets ?",
+    "Qui est le plus susceptible de l'avoir déjà fait dans les toilettes d'une boîte ?",
+    "Qui est le plus susceptible de regarder du porno au travail ?",
+    "Qui est le plus susceptible de coucher avec quelqu'un rencontré le soir même ?",
+    "Qui est le plus bruyant au lit, à ton avis ?",
+    "Qui est le plus susceptible d'avoir déjà fait du sexe au téléphone ?",
+    "Qui est le plus susceptible de se faire surprendre par ses colocs ?",
+    "Qui est le plus susceptible d'avoir un plan cul en ce moment ?",
+    "Qui est le plus susceptible de sortir avec quelqu'un de beaucoup plus âgé ?",
+    "Qui a le plus d'expérience au lit dans le groupe ?"
+  ],
+  d: [
+    "Quels deux potes auraient la meilleure alchimie au lit ?",
+    "Quels deux potes ont déjà fantasmé l'un sur l'autre, à ton avis ?",
+    "Qui sont les deux plus coquins du groupe ?",
+    "Quels deux potes font le plus de bruit… la nuit ?",
+    "Qui sont les deux plus nuls en drague ?",
+    "Quels deux potes tenteraient un plan à trois ensemble ?"
+  ],
+  g: [
+    { q: "Ton pote t'avoue un fantasme un peu bizarre.", a: ["Je ne juge pas", "Je m'en moque pendant des mois"] },
+    { q: "Tu entends ton coloc et son date à travers le mur.", a: ["Je mets un casque", "J'applaudis à la fin"] },
+    { q: "Ton pote n'a plus de protection et te demande de le dépanner.", a: ["Je dépanne", "Je le raconte au groupe"] },
+    { q: "Ton pote te demande des conseils pour le lit.", a: ["Je l'aide sérieusement", "Je lui donne des conseils foireux"] },
+    { q: "Ton pote a eu une panne au pire moment et te le raconte.", a: ["Je dédramatise", "J'en fais son surnom"] },
+    { q: "Ton pote veut ramener quelqu'un chez vous ce soir.", a: ["Je lui laisse l'appart", "Je fais exprès de rester"] }
+  ],
+  p: [
+    { a: ["Le faire uniquement dans le noir", "Uniquement avec la lumière allumée"] },
+    { a: ["Un sex friend parfait", "Un couple stable mais sans passion"] },
+    { a: ["Que ton ex raconte tes performances à tes potes", "Que tes potes les racontent à ton ex"] },
+    { a: ["Une nuit torride sans lendemain", "Un an de câlins sans rien de plus"] },
+    { a: ["Te faire surprendre en pleine action par ta mère", "Par ton patron"] },
+    { a: ["Ne plus jamais embrasser", "Ne plus jamais coucher avec personne"] },
+    { a: ["Que ton crush connaisse tous tes fantasmes", "Que ta famille les connaisse"] },
+    { a: ["Une nuit avec une célébrité", "Une nuit avec ton crush"] },
+    { a: ["Le faire dans un avion", "Le faire sur une plage"] },
+    { a: ["Un partenaire très bruyant", "Un partenaire complètement silencieux"] }
+  ],
+  n: [
+    "Je n'ai jamais fait l'amour dans une voiture",
+    "Je n'ai jamais utilisé de sextoy",
+    "Je n'ai jamais fait de sexe au téléphone ou en visio",
+    "Je n'ai jamais fait de plan à trois",
+    "Je n'ai jamais couché avec quelqu'un rencontré le soir même",
+    "Je n'ai jamais fait l'amour dans un endroit où je risquais de me faire prendre",
+    "Je n'ai jamais regardé du porno avec quelqu'un",
+    "Je n'ai jamais été attaché",
+    "Je n'ai jamais fait de strip-tease",
+    "Je n'ai jamais eu d'histoire d'un soir",
+    "Je n'ai jamais couché avec un collègue",
+    "Je n'ai jamais fait l'amour plus de trois fois dans la même nuit",
+    "Je n'ai jamais eu de panne",
+    "Je n'ai jamais envoyé un message coquin à la mauvaise personne",
+    "Je n'ai jamais couché avec quelqu'un de beaucoup plus âgé",
+    "Je n'ai jamais fait l'amour dans le lit de quelqu'un d'autre"
+  ],
+  a: [
+    "Ton fantasme le plus inavouable",
+    "L'endroit le plus fou où tu l'as fait",
+    "Ta première fois… avec les détails que tu veux bien donner",
+    "La fois où tu t'es fait surprendre",
+    "Ton pire coup d'un soir",
+    "Ta meilleure nuit",
+    "Le truc le plus bizarre qu'on t'ait demandé au lit",
+    "La fois où ça a mal tourné au pire moment"
+  ],
+  t: [
+    { q: "Classe tes potes : qui est le plus coquin ?", items: null },
+    { q: "Classe tes potes : qui a les fantasmes les plus bizarres ?", items: null },
+    { q: "Classe tes potes : qui est le plus bruyant au lit, à ton avis ?", items: null },
+    { q: "Les endroits pour le faire", items: ["Voiture", "Plage", "Douche", "Ascenseur", "Cabine d'essayage", "Toilettes de boîte", "Avion"] },
+    { q: "Les meilleurs moments pour le faire", items: ["Le matin", "En pleine nuit", "Pause déjeuner", "Après une soirée", "Pendant un film", "En vacances"] },
+    { q: "Ce qui te fait craquer", items: ["Le parfum", "La voix", "Les mains", "L'humour", "Le regard", "Le style"] }
+  ],
+  i: [
+    { q: "Note ta motivation pour le sport sur 10", f: "Note ta libido sur 10" },
+    { q: "Combien de fois par semaine tu fais du sport ?", f: "Combien de fois par semaine tu fais l'amour ?" },
+    { q: "Combien de pays tu as visités cette année ?", f: "Combien de partenaires tu as eus cette année ?" },
+    { q: "Note ton côté romantique sur 10", f: "Note ton côté coquin sur 10" },
+    { q: "Combien de cafés tu bois par jour ?", f: "Ton record de fois dans une même nuit ?" },
+    { q: "À quel âge tu as eu ton premier téléphone ?", f: "À quel âge tu as perdu ta virginité ?" },
+    { q: "Combien de plantes tu as chez toi ?", f: "Combien de sextoys tu as ?" },
+    { q: "Combien de jours tu tiens sans réseaux sociaux ?", f: "Combien de dates tu attends avant de coucher ?" }
+  ],
+  x: [
+    "Avoir couché avec l'ex d'un pote",
+    "Raconter les détails de ses nuits à tout le monde",
+    "Avoir un historique de recherche inavouable",
+    "Ghoster après la première nuit",
+    "Faire semblant d'être célibataire en soirée",
+    "Cacher un plan cul au groupe",
+    "Envoyer des nudes à plusieurs personnes en même temps",
+    "Simuler… et l'assumer"
+  ]
+};
+for (const k in HC2) DEFAULT_HC[k] = DEFAULT_HC[k].concat(HC2[k]);
+
+const MODES = [
+  { k: "u", label: "Une seule réponse", hint: "Vote pour un joueur", def: 3 },
+  { k: "d", label: "Deux réponses", hint: "Vote pour deux joueurs", def: 2 },
+  { k: "g", label: "Test de gentillesse", hint: "Fais ton choix. Tout le monde verra.", def: 2 },
+  { k: "p", label: "Tu préfères", hint: "Choisis. Tout le monde verra.", def: 2 },
+  { k: "n", label: "Je n'ai jamais", hint: "Sois honnête, tout le monde verra.", def: 3 },
+  { k: "a", label: "Thèmes anecdotes", hint: "Raconte. Les autres devinent qui a écrit quoi.", def: 1 },
+  { k: "t", label: "Les tier list", hint: "Classe chaque élément de S à D", def: 1 },
+  { k: "i", label: "L'imposteur", hint: "Réponds par un nombre", def: 2 },
+  { k: "x", label: "Le procès", hint: "Vote pour l'accusé", def: 2 }
+];
+
+const RULES = {"u": "Une question du type « Qui est le plus susceptible de… ? ». Chacun vote pour un joueur, même soi-même. Le plus désigné prend la couronne, et on voit qui a voté pour qui.", "d": "Même principe, mais tu choisis deux joueurs. Les plus désignés sont révélés, avec le nom de ceux qui ont voté pour eux.", "g": "Une situation et deux réactions : une gentille, une pas gentille. Réponds honnêtement, tout le monde verra ton choix. C'est ce qui désigne l'Ange et le Démon du groupe.", "p": "Deux options, tu dois en choisir une. Les deux camps sont révélés. À la fin : le mouton (toujours avec la majorité) et le rebelle (toujours à contre-courant).", "n": "Une phrase « Je n'ai jamais… ». Réponds « Jamais » ou « Déjà fait », et les réponses sont montrées à tout le monde. Celui qui a le plus de « Déjà fait » est le plus déjanté.", "a": "Un thème personnel. Chacun écrit son anecdote en secret. Elles s'affichent mélangées, vous devinez à voix haute qui a écrit quoi, puis l'hôte peut révéler les auteurs.", "t": "Classe chaque élément, ou chaque pote, de S (le top) à D (le pire). La tier list affichée est la moyenne de tout le groupe.", "i": "Tout le monde répond à la même question par un nombre… sauf l'imposteur, qui a reçu une autre question sans le savoir. Les réponses s'affichent, vous débattez, puis vous votez pour le démasquer.", "x": "Une accusation : « Qui est coupable de… ? ». Le groupe vote pour désigner l'accusé. Il a 30 secondes pour se défendre à voix haute, puis le jury vote coupable ou non coupable."};
+let rulesOpen = null;
+const AVATARS = ["🦊","🐸","🐙","👾","🦄","🐼","🍕","🤖","🐲","🦖","👻","🐧"];
+const AVCOL = ["#e8484f","#2fd06a","#a35ae6","#74d4ef","#f6c94c","#ff8fb1","#ff9a3c","#8ea2ff","#3ccf9e","#d36af0","#f0f0f0","#5bc0eb"];
+const TIERS = ["S","A","B","C","D"];
+const MAX_TEXT = 200;
+
+/* ---------- tiny helpers ---------- */
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in (props || {})) {
+    const v = props[k];
+    if (v === false || v == null) continue;
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, "");
+    else e.setAttribute(k, v);
+  }
+  for (const c of kids.flat()) { if (c == null || c === false) continue; e.append(c instanceof Node ? c : String(c)); }
+  return e;
+}
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+const clean = (s, n=16) => String(s ?? "").replace(/[\u0000-\u001f​-‏‪-‮⁠-⁤﻿]/g, "").slice(0, n);
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const randCode = () => Array.from({length:4}, () => "ABCDEFGHJKLMNPQRSTUVWXYZ"[Math.floor(Math.random()*24)]).join("");
+function avatar(i, small) { i = (i|0) % AVATARS.length; if (i < 0) i = 0; return h("div", { class: "av" + (small ? " sm" : ""), style: "background:" + AVCOL[i], "aria-hidden": "true" }, AVATARS[i]); }
+const BANK_KEY = "tribunal-questions-v1";
+function sanitizeBank(b, fill) {
+  if (!b || typeof b !== "object") return null;
+  if (fill) { b = Object.assign({}, b); for (const m of MODES) if (!Array.isArray(b[m.k])) b[m.k] = DEFAULT_BANK[m.k]; }
+  const t = (x, n) => typeof x === "string" ? clean(x, n).trim() : "";
+  const out = {}; MODES.forEach(m => out[m.k] = []);
+  for (const k of ["u", "d", "a", "n", "x"]) if (Array.isArray(b[k])) b[k].forEach(x => { const q = t(x, 200); if (q) out[k].push(q); });
+  if (Array.isArray(b.g)) b.g.forEach(x => { if (x && Array.isArray(x.a)) { const q = t(x.q, 200), a0 = t(x.a[0], 60), a1 = t(x.a[1], 60); if (q && a0 && a1) out.g.push({ q, a: [a0, a1] }); } });
+  if (Array.isArray(b.p)) b.p.forEach(x => { if (x && Array.isArray(x.a)) { const a0 = t(x.a[0], 80), a1 = t(x.a[1], 80); if (a0 && a1) out.p.push({ a: [a0, a1] }); } });
+  if (Array.isArray(b.i)) b.i.forEach(x => { if (x && typeof x === "object") { const q = t(x.q, 200), f = t(x.f, 200); if (q && f) out.i.push({ q, f }); } });
+  if (Array.isArray(b.t)) b.t.forEach(x => { if (x && typeof x === "object") { const q = t(x.q, 200); const items = Array.isArray(x.items) ? x.items.map(i => t(i, 40)).filter(Boolean).slice(0, 12) : null; if (q && (items === null || items.length >= 2)) out.t.push({ q, items }); } });
+  return out;
+}
+let BANK = (() => { try { const raw = store.get(BANK_KEY); const b = raw && sanitizeBank(JSON.parse(raw), true); if (b) return b; } catch (e) {} return sanitizeBank(DEFAULT_BANK); })();
+let VER = "soft";
+const HC_KEY = "tribunal-questions-hc-v1";
+(function migrateAnecdotes() {
+  if (store.get("tribunal-bank-ver") === "2") return;
+  const OLD_A = ["Ta pire honte en soirée","Le pire cadeau que tu aies reçu","Ton plus gros mensonge à tes parents","Ta pire galère en voyage","Le jour où tu t'es le plus ridiculisé","Ton pire date","La fois où tu t'es fait le plus engueuler","Ton pire job ou stage","Ton plus gros fou rire","La chose la plus bizarre que tu aies mangée","Ton pire réveil après une soirée","La pire bêtise que tu aies faite enfant","Ton moment le plus gênant devant un crush"];
+  if (store.get(BANK_KEY)) {
+    const fresh = sanitizeBank(DEFAULT_BANK).a;
+    BANK.a = BANK.a.filter(q => !OLD_A.includes(q));
+    fresh.forEach(q => { if (!BANK.a.includes(q)) BANK.a.push(q); });
+    saveBank();
+  }
+  store.set("tribunal-bank-ver", "2");
+})();
+(function removeHardest() {
+  if (store.get("tribunal-bank-ver3") === "1") return;
+  const before = BANK.a.length;
+  BANK.a = BANK.a.filter(q => q !== "Le moment le plus dur de ta vie que tu veux bien raconter");
+  if (BANK.a.length !== before && store.get(BANK_KEY)) saveBank();
+  store.set("tribunal-bank-ver3", "1");
+})();
+(function migrateTierLists() {
+  if (store.get("tribunal-bank-ver4") === "1") return;
+  const OLD_T = ["Les fast-foods", "Les pires corvées", "Classe tes potes : qui est le plus drôle ?", "Les fromages", "Les réseaux sociaux", "Les plats de mamie", "Les excuses pour annuler une soirée", "Les boissons de soirée", "Les jours de la semaine", "Classe tes potes : qui survit le plus longtemps sur une île déserte ?", "Classe tes potes : qui a le meilleur style ?"];
+  if (store.get(BANK_KEY)) {
+    BANK.t = BANK.t.filter(x => !OLD_T.includes(x.q));
+    const have = new Set(BANK.t.map(x => x.q));
+    sanitizeBank(DEFAULT_BANK).t.forEach(x => { if (!have.has(x.q)) BANK.t.push(x); });
+    saveBank();
+  }
+  store.set("tribunal-bank-ver4", "1");
+})();
+(function migrateKindness() {
+  if (store.get("tribunal-bank-ver5") === "1") return;
+  const MAP = {"Ton pote t'a prêté 20 € et il a oublié.": {"q": "Ton pote te confie un secret lourd, et le groupe en parle sans savoir.", "a": ["Je garde le secret", "Je lâche un indice"]}, "Ton pote t'appelle à minuit pour réviser son exam du lendemain.": {"q": "Ton pote traverse une période dure mais fait comme si tout allait bien.", "a": ["Je prends de ses nouvelles en privé", "Je fais comme si de rien n'était"]}, "Ton pote t'offre un cadeau moche.": {"q": "Ton pote t'avoue qu'il a des sentiments pour toi, mais ce n'est pas réciproque.", "a": ["Je lui parle avec douceur", "Je l'évite pendant des semaines"]}, "Il reste une seule place assise dans la voiture.": {"q": "Tu apprends que la personne avec qui ton pote est en couple le trompe.", "a": ["Je lui dis", "Je fais comme si je ne savais rien"]}, "Ton pote a de la salade dans les dents juste avant un date.": {"q": "Ton pote craque et pleure devant toi pour la première fois.", "a": ["Je le prends dans mes bras", "Je change de sujet, gêné"]}, "Ton pote te prête sa console.": {"q": "Ton pote te demande ce que tu penses vraiment de son couple, qui lui fait du mal.", "a": ["Je lui dis la vérité avec tact", "Je dis que tout va bien"]}};
+  if (store.get(BANK_KEY)) {
+    BANK.g = BANK.g.map(x => MAP[x.q] ? { q: MAP[x.q].q, a: MAP[x.q].a.slice() } : x);
+    saveBank();
+  }
+  store.set("tribunal-bank-ver5", "1");
+})();
+(function addBatch2() {
+  if (store.get("tribunal-bank-ver6") === "1") return;
+  if (store.get(BANK_KEY)) {
+    const add = sanitizeBank(EXTRA2_BANK, true); let n = 0;
+    for (const m of MODES) {
+      const have = new Set(BANK[m.k].map(q => bankKey(m.k, q)));
+      (add[m.k] || []).forEach(q => { if (EXTRA2_BANK[m.k] && !have.has(bankKey(m.k, q))) { BANK[m.k].push(q); n++; } });
+    }
+    if (n) saveBank();
+  }
+  store.set("tribunal-bank-ver6", "1");
+})();
+const USED_KEY = "tribunal-used-v1";
+let USED = (() => { try { const u = JSON.parse(store.get(USED_KEY) || "{}"); return u && typeof u === "object" ? u : {}; } catch (e) { return {}; } })();
+function saveUsed() { store.set(USED_KEY, JSON.stringify(USED)); }
+function uk(k) { return (VER === "hard" ? "h_" : "") + k; }
+function isUsed(k, q) { return Array.isArray(USED[uk(k)]) && USED[uk(k)].includes(bankKey(k, q)); }
+function markUsed(k, q) { if (!q) return; const u = uk(k); if (!Array.isArray(USED[u])) USED[u] = []; const key = bankKey(k, q); if (!USED[u].includes(key)) { USED[u].push(key); saveUsed(); } }
+function availIdx(k) { return BANK[k].map((_, i) => i).filter(i => !isUsed(k, BANK[k][i])); }
+function refreshAvail() {
+  if (!H) return;
+  H.max = Object.fromEntries(MODES.map(m => [m.k, availIdx(m.k).length]));
+  H.usedN = MODES.reduce((n, m) => n + BANK[m.k].length - H.max[m.k], 0);
+  MODES.forEach(m => { H.cnt[m.k] = Math.min(H.cnt[m.k] | 0, H.max[m.k]); });
+}
+function resetUsed() {
+  Object.keys(USED).forEach(k => { if (VER === "hard" ? k.startsWith("h_") : !k.startsWith("h_")) delete USED[k]; }); saveUsed();
+  if (!H) return;
+  refreshAvail();
+  MODES.forEach(m => { if (!(H.cnt[m.k] | 0)) H.cnt[m.k] = Math.min(m.def, H.max[m.k]); });
+  pushPresence(); render(true);
+  toast("Toutes les questions sont de nouveau disponibles.");
+}
+const BANKS = { soft: BANK, hard: (() => { try { const raw = store.get(HC_KEY); const b = raw && sanitizeBank(Object.assign({}, DEFAULT_HC, JSON.parse(raw))); if (b) return b; } catch (e) {} return sanitizeBank(DEFAULT_HC); })() };
+function useVer(v) { BANKS[VER] = BANK; VER = v === "hard" ? "hard" : "soft"; BANK = BANKS[VER]; store.set("tribunal-ver", VER); }
+function defaultsFor() { return VER === "hard" ? DEFAULT_HC : DEFAULT_BANK; }
+(function addHC2() {
+  if (store.get("tribunal-hc-ver2") === "1") return;
+  if (store.get(HC_KEY)) {
+    const add = sanitizeBank(Object.assign({}, DEFAULT_HC, HC2)); let n = 0;
+    for (const m of MODES) {
+      if (!HC2[m.k]) continue;
+      const have = new Set(BANKS.hard[m.k].map(q => bankKey(m.k, q)));
+      add[m.k].forEach(q => { if (!have.has(bankKey(m.k, q))) { BANKS.hard[m.k].push(q); n++; } });
+    }
+    if (n) store.set(HC_KEY, JSON.stringify(BANKS.hard));
+  }
+  store.set("tribunal-hc-ver2", "1");
+})();
+if (store.get("tribunal-ver") === "hard") useVer("hard");
+function switchVer(v) {
+  if (!iAmHost || !H || H.ver === v) return;
+  useVer(v); H.ver = VER;
+  MODES.forEach(m => { H.cnt[m.k] = Math.min(m.def, availIdx(m.k).length); });
+  refreshAvail(); pushPresence(); render(true);
+}
+function verButtons(cur, onPick, disabled) {
+  return h("div", { class: "vers" }, ...[["soft", "😇 Soft"], ["hard", "🔥 Hardcore"]].map(([v, label]) =>
+    h("button", { class: "verbtn" + (cur === v ? " on " + v : ""), "aria-pressed": String(cur === v), disabled: !!disabled, onclick: () => onPick(v) }, label)));
+}
+function bankKey(k, q) { return (typeof q === "string" ? q : k === "p" ? q.a.join("|") : q.q).toLowerCase(); }
+function mergeDefaults() {
+  const def = sanitizeBank(defaultsFor()); let n = 0;
+  for (const m of MODES) {
+    const have = new Set(BANK[m.k].map(q => bankKey(m.k, q)));
+    for (const q of def[m.k]) if (!have.has(bankKey(m.k, q))) { BANK[m.k].push(q); n++; }
+  }
+  saveBank(); return n;
+}
+function saveBank() { store.set(VER === "hard" ? HC_KEY : BANK_KEY, JSON.stringify(BANK)); }
+let admin = null;
+
+let toastT; function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3200); }
+
+/* ---------- state ---------- */
+let g = null, code = null, iAmHost = false;
+let H = null;                                 // host-only authoritative state
+let peers = [];
+let myAns = null;
+let me = { name: clean(store.get("pseudo") || ""), av: (() => { const v = parseInt(store.get("avatar"), 10); return Number.isFinite(v) ? Math.abs(v) % AVATARS.length : Math.floor(Math.random() * AVATARS.length); })() };
+const PID = (() => { let v = store.get("tribunal-pid"); if (!/^[a-z0-9]{8,20}$/.test(v || "")) { v = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 8); store.set("tribunal-pid", v); } return v; })();
+let codeVisible = false, copied = false, searchStart = 0;
+let draft = { key: "", pick: [], text: "", tiers: [] };
+let lastMainKey = "";
+
+/* ---------- réseau (PeerJS) ----------
+   L'hôte ouvre un « salon » nommé d'après le code. Les autres s'y connectent.
+   L'hôte rassemble l'état de chacun et le renvoie à tout le monde. */
+const PEER_PREFIX = "tribunal-des-potes-v1-";
+const PEER_OPTS = window.PEER_OPTS || { debug: 0 };
+let roomState = typeof window.Peer === "function" ? "ok" : "off";
+let busy = false;
+function hashCode() {
+  const m = /^#([A-Za-z]{4})$/.exec(location.hash || ""); if (m) return m[1].toUpperCase();
+  try { const l = JSON.parse(localStorage.getItem("tribunal-last") || "null"); if (l && /^[A-Z]{4}$/.test(l.c) && Date.now() - l.t < 3 * 3600 * 1000) return l.c; } catch (e) {}
+  return "";
+}
+
+function mergePatch(obj, patch) { const o = Object.assign({}, obj || {}); for (const k in patch) { if (patch[k] === null) delete o[k]; else o[k] = patch[k]; } return o; }
+function asPeers(map, myId) {
+  return Object.keys(map).map(id => ({ peer: id, by: null, presence: map[id] || {}, isMe: id === myId, sameTab: id === myId, kind: "viewer", guest: false, updatedAt: 0 }));
+}
+function hub(api) {
+  const hs = [];
+  api.onPeers = fn => { hs.push(fn); setTimeout(() => fn({ peers: api.peers() }), 0); return () => { const i = hs.indexOf(fn); if (i >= 0) hs.splice(i, 1); }; };
+  return () => { const ps = api.peers(); hs.slice().forEach(f => { try { f({ peers: ps }); } catch (e) { console.error(e); } }); };
+}
+function keepAlive(peer, isDead) {
+  peer.on("disconnected", () => { if (!isDead()) setTimeout(() => { try { if (!peer.destroyed && peer.disconnected) peer.reconnect(); } catch (e) {} }, 1500); });
+}
+
+function openHost(code) {
+  return new Promise((resolve, reject) => {
+    const peer = new Peer(PEER_PREFIX + code, PEER_OPTS);
+    let myId = null, opened = false, dead = false, pres = {}, bTimer = null;
+    const conns = new Map(), seenAt = new Map();
+    const drop = id => {
+      const c = conns.get(id); conns.delete(id); seenAt.delete(id);
+      if (c) { try { c.close(); } catch (e) {} }
+      if (id in pres) { const nx = Object.assign({}, pres); delete nx[id]; pres = nx; broadcast(); notify(); }
+    };
+    const sweep = setInterval(() => {
+      if (dead) { clearInterval(sweep); return; }
+      const now = Date.now();
+      seenAt.forEach((t0, id) => { if (now - t0 > 12000) drop(id); });
+    }, 3000);
+    const api = {
+      presence(patch) { pres = Object.assign({}, pres, { [myId]: mergePatch(pres[myId], patch) }); broadcast(); notify(); return Promise.resolve(); },
+      peers() { return asPeers(pres, myId); },
+      leave() { dead = true; clearInterval(sweep); try { peer.destroy(); } catch (e) {} return Promise.resolve(); }
+    };
+    const notify = hub(api);
+    function broadcast() {
+      if (bTimer) return;
+      bTimer = setTimeout(() => { bTimer = null; const msg = { t: "all", all: pres }; conns.forEach(c => { if (c.open) { try { c.send(msg); } catch (e) {} } }); }, 40);
+    }
+    peer.on("open", id => { myId = id; opened = true; pres[id] = {}; resolve(api); });
+    peer.on("connection", conn => {
+      conn.on("open", () => { conns.set(conn.peer, conn); seenAt.set(conn.peer, Date.now()); try { conn.send({ t: "all", all: pres }); } catch (e) {} });
+      conn.on("data", d => {
+        if (conns.get(conn.peer) !== conn) conns.set(conn.peer, conn);
+        seenAt.set(conn.peer, Date.now());
+        if (d && d.t === "bye") { drop(conn.peer); return; }
+        if (d && d.t === "p" && d.p && typeof d.p === "object" && !Array.isArray(d.p)) {
+          const p = Object.assign({}, d.p); delete p.role; delete p.st; delete p.since;   // seul l'hôte pilote la partie
+          // même joueur revenu (même appareil) : on retire son ancienne connexion
+          if (typeof p.pid === "string") Object.keys(pres).forEach(id => { if (id !== conn.peer && id !== myId && pres[id] && pres[id].pid === p.pid) drop(id); });
+          pres = Object.assign({}, pres, { [conn.peer]: p }); broadcast(); notify();
+        }
+      });
+      const gone = () => { if (conns.get(conn.peer) !== conn) return; drop(conn.peer); };
+      conn.on("close", gone); conn.on("error", gone);
+    });
+    keepAlive(peer, () => dead);
+    peer.on("error", e => { if (!opened) { dead = true; try { peer.destroy(); } catch (_) {} reject({ code: e && e.type === "unavailable-id" ? "taken" : "network" }); } });
+  });
+}
+
+function openClient(code) {
+  return new Promise((resolve, reject) => {
+    const peer = new Peer(PEER_OPTS);
+    let myId = null, opened = false, dead = false, conn = null, all = {}, mine = {}, retry = null;
+    const beat = setInterval(() => { if (dead) { clearInterval(beat); return; } if (conn && conn.open) { try { conn.send({ t: "ping" }); } catch (e) {} } }, 4000);
+    const bye = () => { if (conn && conn.open) { try { conn.send({ t: "bye" }); } catch (e) {} } };
+    window.addEventListener("pagehide", bye);
+    const api = {
+      presence(patch) { mine = mergePatch(mine, patch); if (conn && conn.open) { try { conn.send({ t: "p", p: mine }); } catch (e) {} } notify(); return Promise.resolve(); },
+      peers() { const m = Object.assign({}, all); if (myId) m[myId] = mine; return asPeers(m, myId); },
+      leave() { bye(); dead = true; clearTimeout(retry); clearInterval(beat); window.removeEventListener("pagehide", bye); setTimeout(() => { try { peer.destroy(); } catch (e) {} }, 150); return Promise.resolve(); }
+    };
+    const notify = hub(api);
+    const schedule = ms => { if (dead || retry) return; retry = setTimeout(() => { retry = null; connect(); }, ms); };
+    function connect() {
+      if (dead || peer.destroyed) return;
+      if (peer.disconnected) { schedule(2000); return; }
+      const c = peer.connect(PEER_PREFIX + code, { reliable: true, serialization: "json" });
+      conn = c;
+      const watchdog = setTimeout(() => { if (conn === c && !c.open) { try { c.close(); } catch (e) {} conn = null; schedule(500); } }, 12000);
+      c.on("open", () => { clearTimeout(watchdog); if (conn === c) { try { c.send({ t: "p", p: mine }); } catch (e) {} } });
+      c.on("data", d => { if (conn === c && d && d.t === "all" && d.all && typeof d.all === "object") { all = d.all; notify(); } });
+      const lost = () => { clearTimeout(watchdog); if (conn !== c) return; conn = null; all = {}; notify(); schedule(2000); };
+      c.on("close", lost); c.on("error", lost);
+    }
+    peer.on("open", id => { myId = id; opened = true; resolve(api); connect(); });
+    peer.on("error", e => {
+      if (e && e.type === "peer-unavailable") { conn = null; all = {}; notify(); schedule(3000); return; }
+      if (!opened) { dead = true; try { peer.destroy(); } catch (_) {} reject({ code: "network" }); }
+    });
+    keepAlive(peer, () => dead);
+  });
+}
+
+function players() {
+  const seen = new Set(), out = [];
+  for (const p of peers) {
+    if (p.kind !== "viewer" || !p.presence || typeof p.presence.name !== "string") continue;
+    const id = typeof p.presence.pid === "string" && /^[a-z0-9]{8,20}$/.test(p.presence.pid) ? p.presence.pid : p.peer;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    out.push({ id, name: clean(p.presence.name) || "Anonyme", av: p.presence.av | 0, me: p.sameTab, host: p.presence.role === "host", ans: p.presence.ans });
+  }
+  return out;
+}
+function myId() { return PID; }
+function hostPeer() {
+  let best = null;
+  for (const p of peers) {
+    const pr = p.presence || {};
+    if (pr.role === "host" && pr.st && pr.st.code === code && (!best || (pr.since|0) < (best.presence.since|0))) best = p;
+  }
+  return best;
+}
+function S() { if (iAmHost) return H; const hp = hostPeer(); return hp ? hp.presence.st : null; }
+const answered = (p, st) => !!(p.ans && p.ans.g === st.gid && p.ans.i === st.i && (p.ans.s | 0) === (st.s | 0));
+
+async function pushPresence() {
+  if (!g) return;
+  for (let tries = 0; tries < 40; tries++) {
+    const base = { name: me.name, av: me.av, pid: PID, ans: myAns };
+    if (iAmHost) Object.assign(base, { role: "host", since: H.since, st: H });
+    try { await g.presence(base); return; }
+    catch (e) {
+      if (e && e.code === "invalid_argument" && iAmHost && H.hist && H.hist.length) { H.hist.shift(); continue; }
+      toast(e && e.code === "invalid_argument" ? "Trop de texte pour ce tour : raccourcis les réponses." : "Connexion perdue, réessaie dans un instant.");
+      return;
+    }
+  }
+}
+
+async function enterRoom(c, host) {
+  me.name = clean(me.name).trim();
+  if (!me.name) { toast("Choisis d'abord un pseudo."); return; }
+  if (busy || roomState !== "ok") return;
+  store.set("pseudo", me.name); store.set("avatar", String(me.av));
+  busy = true; render(true);
+  let r = null;
+  try {
+    if (host) {
+      for (let k = 0; k < 5 && !r; k++) { c = randCode(); try { r = await openHost(c); } catch (e) { if (!e || e.code !== "taken") throw e; } }
+      if (!r) throw { code: "network" };
+    } else r = await openClient(c);
+  } catch (e) {
+    busy = false; render(true);
+    toast("Connexion impossible. Vérifie ta connexion internet et réessaie.");
+    return;
+  }
+  busy = false;
+  try { localStorage.setItem("tribunal-last", JSON.stringify({ c, t: Date.now() })); } catch (e) {}
+  g = r; code = c; iAmHost = host; myAns = null; codeVisible = false; copied = false; searchStart = Date.now();
+  try { if (location.hash) history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  if (host) {
+    const cnt = {}; MODES.forEach(m => cnt[m.k] = Math.min(m.def, BANK[m.k].length));
+    H = { code: c, since: Date.now(), ph: "lobby", gid: 0, i: 0, plan: [], cur: null, res: null, showA: 0, s: 0, ver: VER, nm: {}, tot: {}, kind: {}, cnt, max: Object.fromEntries(MODES.map(m => [m.k, BANK[m.k].length])) };
+    refreshAvail();
+  }
+  g.onPeers(ch => { peers = ch.peers.slice(); if (iAmHost) hostTick(); render(); });
+  pushPresence();
+  render(true);
+  setTimeout(() => render(true), 5200);
+}
+async function leave() {
+  const r = g; g = null; H = null; iAmHost = false; code = null; peers = []; myAns = null;
+  if (r) { try { await r.leave(); } catch (e) {} }
+  render(true);
+}
+
+/* ---------- host logic ---------- */
+const STATS = ["tot", "kind", "mean", "maj", "mino", "did", "det", "guil"];
+function eligible(st, ps) {
+  const [m] = st.plan[st.i] || [];
+  const s = st.s | 0;
+  if (m === "x" && s === 1) return [];
+  if (m === "x" && s === 2) return ps.filter(p => p.id !== (st.cur && st.cur.acc));
+  return ps;
+}
+function hostTick() {
+  if (!H) return;
+  const ps = players(); let changed = false;
+  for (const p of ps) if (H.nm[p.id] !== p.name) { H.nm[p.id] = p.name; changed = true; }
+  if (H.ph === "q") { const el = eligible(H, ps); if (el.length && el.every(p => answered(p, H))) { advance(); return; } }
+  if (changed) pushPresence();
+}
+function bump(map, id, n) { H[map][id] = (H[map][id] || 0) + (n == null ? 1 : n); }
+function startGame() {
+  const plan = [];
+  for (const m of MODES) shuffle(availIdx(m.k)).slice(0, H.cnt[m.k]).forEach(i => plan.push([m.k, i]));
+  if (!plan.length) { toast("Ajoute au moins une question."); return; }
+  Object.assign(H, { plan, gid: Math.floor(Math.random() * 1e9), i: 0, hist: [] });
+  STATS.forEach(k => H[k] = {});
+  startRound();
+}
+function startRound() {
+  const [m, qi] = H.plan[H.i];
+  const src = BANK[m][qi];
+  markUsed(m, src);
+  H.cur = null; H.s = 0;
+  if (typeof src === "string") H.q = { text: src };
+  else if (m === "p") H.q = { text: "Tu préfères…", a: src.a.slice(0, 2) };
+  else if (m === "i") H.q = { text: src.q, alt: src.f };
+  else H.q = { text: src.q, a: Array.isArray(src.a) ? src.a.slice(0, 2) : undefined };
+  if (m === "t") H.cur = { items: src.items ? src.items.slice(0, 10).map(x => clean(x, 40)) : players().map(p => p.name).slice(0, 10) };
+  if (m === "i") { const ps = players(); H.cur = { imp: ps.length ? ps[Math.floor(Math.random() * ps.length)].id : null }; }
+  if (m === "x") H.cur = {};
+  H.ph = "q"; H.res = null; H.showA = 0; myAns = null;
+  pushPresence();
+}
+function advance() {
+  if (!H || H.ph !== "q") return;
+  const [m] = H.plan[H.i], s = H.s | 0;
+  const ps = players().filter(p => answered(p, H));
+  if (m === "i" && s === 0) {
+    const ans = {};
+    for (const p of ps) { const n = Number(p.ans.v); if (Number.isFinite(n)) ans[p.id] = Math.round(n * 10) / 10; }
+    H.cur = Object.assign({}, H.cur, { ans }); H.s = 1; pushPresence(); return;
+  }
+  if (m === "x" && s === 0) {
+    const v = {}, by = {};
+    for (const p of ps) if (typeof p.ans.v === "string") { v[p.ans.v] = (v[p.ans.v] || 0) + 1; (by[p.ans.v] = by[p.ans.v] || []).push(p.id); bump("tot", p.ans.v); }
+    let ids = Object.keys(v); if (!ids.length) ids = players().map(p => p.id);
+    const max = Math.max(0, ...ids.map(id => v[id] | 0)), top = ids.filter(id => (v[id] | 0) === max);
+    H.cur = { acc: top[Math.floor(Math.random() * top.length)] || null, n: max, by };
+    H.s = 1; pushPresence();
+    const gid = H.gid, i = H.i;
+    setTimeout(() => { if (H && H.gid === gid && H.i === i && H.ph === "q" && H.s === 1) advance(); }, 30000);
+    return;
+  }
+  if (m === "x" && s === 1) { H.s = 2; pushPresence(); hostTick(); return; }
+  reveal();
+}
+function reveal() {
+  if (!H || H.ph !== "q") return;
+  const [m] = H.plan[H.i], ps = players().filter(p => answered(p, H));
+  const t70 = (() => { const full = clean((H.q && H.q.text) || "", 200); if (full.length <= 90) return full; const cut = full.slice(0, 88); return cut.slice(0, cut.lastIndexOf(" ") > 50 ? cut.lastIndexOf(" ") : 88) + "…"; })();
+  H.hist = H.hist || []; STATS.forEach(k => H[k] = H[k] || {});
+  let res = {};
+  const tally = (max) => {
+    const v = {};
+    for (const p of ps) {
+      const picks = (Array.isArray(p.ans.v) ? p.ans.v : [p.ans.v]).filter(x => typeof x === "string").slice(0, max);
+      for (const t of new Set(picks)) (v[t] = v[t] || []).push(p.id);
+    }
+    return v;
+  };
+  if (m === "u" || m === "d") {
+    const v = tally(m === "u" ? 1 : 2);
+    Object.keys(v).forEach(id => bump("tot", id, v[id].length));
+    res = { v };
+    const arr = Object.keys(v).map(id => [id, v[id].length]).sort((a, b) => b[1] - a[1]);
+    const k = m === "u" ? 0 : 1, cut = arr[k] ? arr[k][1] : (arr.length ? arr[arr.length - 1][1] : 1);
+    H.hist.push({ m, t: t70, w: arr.filter(x => x[1] >= cut && x[1] > 0).slice(0, 4) });
+  } else if (m === "g" || m === "p" || m === "n") {
+    const c = {};
+    for (const p of ps) c[p.id] = p.ans.v === 1 ? 1 : 0;
+    res = { c };
+    const ids = Object.keys(c);
+    if (m === "g") ids.forEach(id => { bump("kind", id, c[id] === 0 ? 1 : 0); bump("mean", id, c[id] === 1 ? 1 : 0); });
+    if (m === "n") { ids.forEach(id => bump("did", id, c[id])); H.hist.push({ m, t: t70, ids: ids.filter(id => c[id] === 1) }); }
+    if (m === "p") {
+      const n1 = ids.filter(id => c[id] === 1).length, n0 = ids.length - n1;
+      if (n0 !== n1) { const w = n0 > n1 ? 0 : 1; ids.forEach(id => bump(c[id] === w ? "maj" : "mino", id)); }
+      const a = (H.q.a || []).map(x => clean(x, 80));
+      H.hist.push({ m, o: a, k: [n0, n1] });
+    }
+  } else if (m === "a") {
+    const l = ps.filter(p => typeof p.ans.v === "string" && p.ans.v.trim());
+    H.hist.push({ m, t: t70, n: l.length });
+    res = { l: shuffle(l.map(p => [clean(p.ans.v, MAX_TEXT), p.id])) };
+  } else if (m === "t") {
+    const n = H.cur.items.length, sum = Array(n).fill(0), cnt = Array(n).fill(0);
+    for (const p of ps) if (Array.isArray(p.ans.v)) p.ans.v.slice(0, n).forEach((t, k) => { if (t >= 0 && t <= 4) { sum[k] += t; cnt[k]++; } });
+    const votes = {};
+    for (const p of ps) if (Array.isArray(p.ans.v)) votes[p.id] = p.ans.v.slice(0, n).map(t => (t >= 0 && t <= 4 ? t | 0 : -1));
+    res = { avg: sum.map((s, k) => cnt[k] ? Math.round(s / cnt[k] * 10) / 10 : null), votes };
+    let lo = -1, hi = -1;
+    res.avg.forEach((a, k) => { if (a == null) return; if (lo < 0 || a < res.avg[lo]) lo = k; if (hi < 0 || a > res.avg[hi]) hi = k; });
+    if (lo >= 0) H.hist.push({ m, t: t70, top: H.cur.items[lo], low: H.cur.items[hi] });
+  } else if (m === "i") {
+    const v = tally(1), imp = H.cur && H.cur.imp;
+    const arr = Object.keys(v).map(id => [id, v[id].length]).sort((a, b) => b[1] - a[1]);
+    const caught = !!(arr.length && arr[0][0] === imp && (!arr[1] || arr[1][1] < arr[0][1]));
+    (v[imp] || []).forEach(id => bump("det", id));
+    res = { v, imp, caught };
+    H.hist.push({ m, t: t70, imp, c: caught ? 1 : 0 });
+  } else if (m === "x") {
+    const acc = H.cur && H.cur.acc;
+    const voters = ps.filter(p => p.id !== acc);
+    const gc = voters.filter(p => p.ans.v === 0).length, nc = voters.filter(p => p.ans.v === 1).length;
+    const ok = gc > nc;
+    if (acc) bump("guil", acc, ok ? 1 : 0);
+    res = { acc, gc, nc, ok };
+    H.hist.push({ m, t: t70, acc, ok: ok ? 1 : 0, gc, nc });
+  }
+  H.res = res; H.ph = "rev";
+  pushPresence();
+}
+function nextRound() { H.i++; if (H.i >= H.plan.length) { Object.assign(H, { ph: "end", res: null, q: null, cur: null, s: 0 }); pushPresence(); } else startRound(); }
+function backToLobby() { Object.assign(H, { ph: "lobby", plan: [], res: null, cur: null, i: 0, s: 0 }); refreshAvail(); myAns = null; pushPresence(); }
+
+function submit(v) {
+  const st = S(); if (!st) return;
+  myAns = { g: st.gid, i: st.i, s: st.s | 0, v };
+  pushPresence().then(() => { if (iAmHost) hostTick(); });
+  render(true);
+}
+
+/* ---------- views ---------- */
+function render(force) {
+  const app = document.getElementById("app");
+  const st = g ? S() : null;
+  const ps = g ? players() : [];
+  let key, view;
+  if (!g && admin) { key = "admin|" + Math.random(); view = viewAdmin; }
+  else if (!g) { key = "home|" + roomState + "|" + busy; view = viewHome; }
+  else if (!st) { key = "search|" + (Date.now() - searchStart > 5000); view = viewSearch; }
+  else if (st.ph === "lobby") { key = "lobby|" + JSON.stringify([ps.map(p => [p.id, p.name, p.av, p.host]), st.cnt, st.max, st.usedN, st.ver, codeVisible, copied, rulesOpen]); view = () => viewLobby(st, ps); }
+  else if (st.ph === "q") {
+    const [m] = st.plan[st.i];
+    const s = st.s | 0;
+    const done = !!(myAns && myAns.g === st.gid && myAns.i === st.i && (myAns.s | 0) === s);
+    const needPs = m === "u" || m === "d" || (m === "x" && s === 0) || (m === "i" && s === 1);
+    key = "q|" + st.gid + "|" + st.i + "|" + s + "|" + done + "|" + (done ? JSON.stringify(ps.map(p => [p.id, p.name, answered(p, st)])) : (needPs ? JSON.stringify(ps.map(p => [p.id, p.name, p.av])) : "")) + "|" + JSON.stringify(st.cur && [st.cur.acc, st.cur.ans, st.cur.imp, st.cur.by]);
+    view = () => viewQuestion(st, ps, done);
+  }
+  else if (st.ph === "rev") { key = "rev|" + st.gid + "|" + st.i + "|" + st.showA + "|" + JSON.stringify(st.res); view = () => viewReveal(st, ps); }
+  else { key = "end|" + st.gid + "|" + JSON.stringify([STATS.map(k => st[k]), st.hist, st.nm]); view = () => viewEnd(st); }
+  if (!force && key === lastMainKey) return;
+  lastMainKey = key;
+  document.body.dataset.ver = ((g && st && st.ver === "hard") || (!g && admin && VER === "hard")) ? "hard" : "soft";
+  if (typeof Music !== "undefined") Music.setMood(document.body.dataset.ver);
+  app.replaceChildren(...[].concat(view()).filter(x => x != null && x !== false));
+}
+
+function header(sub) {
+  return [h("div", { class: "eyebrow" }, sub || "Le jeu qui juge tes potes"), h("h1", null, "Tribunal des Potes")];
+}
+
+function viewHome() {
+  const off = roomState !== "ok" || busy;
+  const nameInp = h("input", { class: "inp", id: "pseudo", maxlength: "16", placeholder: "Ton pseudo", value: me.name, autocomplete: "off",
+    oninput: e => { me.name = e.target.value; } });
+  const avBtn = h("button", { class: "avpick", id: "avpick", type: "button", title: "Changer d'avatar", "aria-label": "Changer d'avatar",
+    onclick: () => { me.av = (me.av + 1) % AVATARS.length; store.set("avatar", String(me.av)); render(true); } }, avatar(me.av));
+  const codeInp = h("input", { class: "inp code-inp", id: "joincode", maxlength: "4", placeholder: "CODE", autocomplete: "off", value: hashCode(),
+    oninput: e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ""); },
+    onkeydown: e => { if (e.key === "Enter") join(); } });
+  function join() { const c = codeInp.value.toUpperCase(); if (c.length !== 4) { toast("Le code fait 4 lettres."); return; } enterRoom(c, false); }
+  return [
+    ...header(),
+    h("div", { class: "panel stack" },
+      h("div", { style: "display:flex;gap:14px;align-items:flex-end" },
+        h("div", { style: "display:flex;flex-direction:column;align-items:center;gap:6px" }, avBtn, h("span", { class: "small muted" }, "Touche")),
+        h("div", { style: "flex:1;min-width:0" }, h("label", { class: "lab", for: "pseudo" }, "Pseudo"), nameInp))
+    ),
+    h("button", { class: "btn green wide", disabled: off, onclick: () => enterRoom(randCode(), true) }, "Créer une partie"),
+    h("div", { class: "panel stack" },
+      h("label", { class: "lab", for: "joincode" }, "Rejoindre avec un code"),
+      h("div", { class: "row", style: "flex-wrap:nowrap" }, codeInp, h("button", { class: "btn", disabled: off, onclick: join }, "Go"))),
+    h("button", { class: "btn purple", onclick: () => { admin = { tab: "u", f: {}, reset: false, io: null }; render(true); window.scrollTo(0, 0); } }, "Gérer les questions"),
+    busy ? h("p", { class: "note" }, "Connexion…")
+      : roomState !== "ok" ? h("p", { class: "note" }, "Le module multijoueur n'a pas pu se charger. Vérifie ta connexion internet et recharge la page.")
+      : h("p", { class: "note" }, "Un joueur crée la partie et donne le code aux autres. Chacun joue sur son téléphone ou son ordi.")
+  ];
+}
+
+
+function viewAdmin() {
+  const tab = admin.tab, list = BANK[tab], f = admin.f;
+  const out = [...header("Interface admin" + (VER === "hard" ? " · Hardcore 🔥" : ""))];
+  out.push(verButtons(VER, v => { if (VER !== v) { useVer(v); admin.f = {}; admin.io = null; admin.reset = false; render(true); } }));
+  out.push(h("div", { class: "tabs", role: "tablist" }, ...MODES.map(m => h("button", { class: "tab" + (m.k === tab ? " on" : ""), role: "tab", "aria-selected": String(m.k === tab),
+    onclick: () => { admin.tab = m.k; admin.f = {}; render(true); } }, m.label, h("span", { class: "cnt" }, String(BANK[m.k].length))))));
+
+  // liste
+  const rows = list.map((q, i) => h("div", { class: "qrow" },
+    h("div", { class: "qtxt" }, h("span", null, typeof q === "string" ? q : tab === "p" ? q.a[0] + "  ou  " + q.a[1] : q.q),
+      tab === "i" ? h("span", { class: "small muted" }, "Imposteur : " + q.f) : null,
+      tab === "g" ? h("span", { class: "small muted" }, "Gentil : " + q.a[0] + " · Pas gentil : " + q.a[1]) : null,
+      tab === "t" ? h("span", { class: "small muted" }, q.items ? q.items.join(", ") : "Classe les joueurs de la partie") : null),
+    h("button", { class: "del", title: "Supprimer", "aria-label": "Supprimer cette question", onclick: () => { BANK[tab].splice(i, 1); saveBank(); toast("Question supprimée."); render(true); } }, "✕")));
+  out.push(h("div", { class: "panel" }, h("div", { class: "panel-title" }, modeOf(tab).label + " · " + list.length + " question" + (list.length > 1 ? "s" : "")),
+    rows.length ? h("div", { class: "qlist" }, ...rows) : h("p", { class: "note", style: "margin:0 auto" }, "Aucune question ici. Ajoute la première ci-dessous.")));
+
+  // formulaire d'ajout
+  const inp = (id, label, ph, n) => { const e = h("input", { class: "inp", id, maxlength: String(n), placeholder: ph, autocomplete: "off" }); e.value = f[id] || ""; e.oninput = () => { f[id] = e.value; }; e.onkeydown = ev => { if (ev.key === "Enter" && tab !== "t") add(); }; return h("div", null, h("label", { class: "lab", for: id }, label), e); };
+  const qLabel = { u: ["Question", "Qui est le plus susceptible de… ?"], d: ["Question", "Quels deux potes… ?"], g: ["Situation", "Ton pote a oublié ses clés…"], a: ["Thème", "Ta pire honte au lycée"], t: ["Titre de la tier list", "Les meilleurs desserts"],
+    n: ["Phrase", "Je n'ai jamais raté un train"], i: ["Question des joueurs (réponse = un nombre)", "Combien d'heures tu dors par nuit ?"], x: ["Accusation", "Manger la dernière part en douce"] }[tab];
+  const fields = tab === "p" ? [h("div", { class: "two" }, inp("f-a0", "Tu préfères…", "Ne plus jamais manger de pizza", 80), inp("f-a1", "… ou", "Ne plus jamais manger de burger", 80))] : [inp("f-q", qLabel[0], qLabel[1], 200)];
+  if (tab === "i") fields.push(inp("f-f", "Question de l'imposteur (réponse = un nombre aussi)", "Combien d'heures tu passes sur ton téléphone ?", 200));
+  if (tab === "g") fields.push(h("div", { class: "two" }, inp("f-a0", "Choix gentil", "Je l'aide", 60), inp("f-a1", "Choix pas gentil", "Je me moque", 60)));
+  if (tab === "t") {
+    const box = h("input", { type: "checkbox", id: "f-players" }); box.checked = !!f.players;
+    const ta = h("textarea", { class: "inp", id: "f-items", placeholder: "Un élément par ligne\nPizza\nSushi\nTacos", disabled: !!f.players }); ta.value = f.items || ""; ta.oninput = () => { f.items = ta.value; };
+    box.onchange = () => { f.players = box.checked; ta.disabled = box.checked; };
+    fields.push(h("div", null, h("label", { class: "lab", for: "f-items" }, "Éléments à classer (2 à 12)"), ta));
+    fields.push(h("label", { class: "check", for: "f-players" }, box, "Classer les joueurs de la partie à la place"));
+  }
+  function add() {
+    const q = clean(f["f-q"] || "", 200).trim();
+    if (tab === "p") {
+      const a0 = clean(f["f-a0"] || "", 80).trim(), a1 = clean(f["f-a1"] || "", 80).trim();
+      if (!a0 || !a1) { toast("Remplis les deux options."); return; }
+      BANK.p.push({ a: [a0, a1] });
+      saveBank(); admin.f = {}; toast("Question ajoutée."); render(true);
+      const el = document.getElementById("f-a0"); if (el) el.focus();
+      return;
+    }
+    if (!q) { toast("Écris d'abord la question."); return; }
+    if (tab === "i") {
+      const fq = clean(f["f-f"] || "", 200).trim();
+      if (!fq) { toast("Écris aussi la question de l'imposteur."); return; }
+      BANK.i.push({ q, f: fq });
+    } else if (tab === "g") {
+      const a0 = clean(f["f-a0"] || "", 60).trim(), a1 = clean(f["f-a1"] || "", 60).trim();
+      if (!a0 || !a1) { toast("Remplis les deux choix."); return; }
+      BANK.g.push({ q, a: [a0, a1] });
+    } else if (tab === "t") {
+      let items = null;
+      if (!f.players) {
+        items = String(f.items || "").split(/\n|,/).map(x => clean(x, 40).trim()).filter(Boolean);
+        if (items.length < 2) { toast("Ajoute au moins 2 éléments, un par ligne."); return; }
+        if (items.length > 12) { toast("12 éléments maximum."); return; }
+      }
+      BANK.t.push({ q, items });
+    } else BANK[tab].push(q);
+    saveBank(); admin.f = {}; toast("Question ajoutée."); render(true);
+    const el = document.getElementById("f-q"); if (el) el.focus();
+  }
+  out.push(h("div", { class: "panel" }, h("div", { class: "panel-title" }, "Ajouter une question"), h("div", { class: "fields" }, ...fields,
+    h("button", { class: "btn green wide", onclick: add }, "+ Ajouter"))));
+
+  // sauvegarde / import / reset
+  const tools = [h("div", { class: "panel-title" }, "Sauvegarde")];
+  tools.push(h("p", { class: "small muted", style: "text-align:center;line-height:1.4" }, "Les questions sont enregistrées sur cet appareil. Pendant une partie, c'est la liste de l'hôte qui est utilisée. Copie la sauvegarde pour la garder ou la passer à un autre appareil."));
+  const json = JSON.stringify(BANK);
+  tools.push(h("div", { class: "row" },
+    h("button", { class: "btn ghost", onclick: () => {
+      const fallback = () => { admin.io = json; render(true); toast("Copie impossible : sélectionne le texte ci-dessous."); };
+      try { navigator.clipboard.writeText(json).then(() => toast("Sauvegarde copiée."), fallback); } catch (e) { fallback(); }
+    } }, "Copier la sauvegarde"),
+    h("button", { class: "btn ghost", onclick: () => { admin.io = admin.io == null ? "" : null; render(true); } }, admin.io == null ? "Importer" : "Fermer l'import")));
+  if (admin.io != null) {
+    const ta = h("textarea", { class: "inp", id: "f-import", placeholder: "Colle ici une sauvegarde" }); ta.value = admin.io; ta.oninput = () => { admin.io = ta.value; };
+    tools.push(ta, h("button", { class: "btn wide", onclick: () => {
+      let b = null; try { b = sanitizeBank(JSON.parse(admin.io), true); } catch (e) {}
+      if (!b) { toast("Sauvegarde illisible. Vérifie que tu as tout collé."); return; }
+      BANK = b; saveBank(); admin.io = null; toast("Questions importées."); render(true);
+    } }, "Remplacer par cette sauvegarde"));
+  }
+  tools.push(h("div", { class: "row" }, h("button", { class: "btn", onclick: () => {
+    const n = mergeDefaults();
+    toast(n ? n + " question" + (n > 1 ? "s" : "") + " ajoutée" + (n > 1 ? "s" : "") + "." : "Tu as déjà toutes les questions proposées.");
+    render(true);
+  } }, "Ajouter les questions proposées")));
+  if (!admin.reset) tools.push(h("div", { class: "row" }, h("button", { class: "btn ghost", onclick: () => { admin.reset = true; render(true); } }, "Remettre les questions d'origine")));
+  else tools.push(h("p", { class: "small", style: "text-align:center" }, "Toutes tes questions seront remplacées par celles d'origine."),
+    h("div", { class: "row" },
+      h("button", { class: "btn ghost", onclick: () => { admin.reset = false; render(true); } }, "Annuler"),
+      h("button", { class: "btn", style: "--c:var(--red);--d:#a82f35;--t:#fff", onclick: () => { BANK = sanitizeBank(defaultsFor()); saveBank(); admin.reset = false; toast("Questions d'origine remises."); render(true); } }, "Oui, tout remplacer")));
+  out.push(h("div", { class: "panel stack" }, ...tools));
+  out.push(h("button", { class: "btn purple", onclick: () => { admin = null; render(true); window.scrollTo(0, 0); } }, "Retour à l'accueil"));
+  return out;
+}
+
+function viewSearch() {
+  const long = Date.now() - searchStart > 5000;
+  return [
+    ...header("Partie " + code),
+    h("div", { class: "panel stack", style: "text-align:center" },
+      h("h2", null, long ? "Aucune partie ouverte avec ce code" : "Recherche de la partie…"),
+      h("p", { class: "muted" }, long ? "Vérifie le code avec l'hôte. Tu rejoindras automatiquement dès que la partie apparaît." : "Connexion à l'hôte en cours.")),
+    h("button", { class: "btn ghost", onclick: leave }, "Retour")
+  ];
+}
+
+function viewLobby(st, ps) {
+  const squares = h("div", { class: "code", "aria-label": codeVisible ? "Code " + code : "Code masqué" }, ...code.split("").map(c => h("span", null, codeVisible ? c : "")));
+  const copyBtn = h("button", { class: "btn", onclick: () => {
+    const ok = () => { copied = true; render(true); setTimeout(() => { copied = false; render(true); }, 2500); };
+    try { navigator.clipboard.writeText(code).then(ok, () => { codeVisible = true; render(true); toast("Copie impossible ici. Le code est affiché."); }); }
+    catch (e) { codeVisible = true; render(true); }
+  } }, "⊕ Copier le code");
+  const seeBtn = h("button", { class: "btn purple", onclick: () => { codeVisible = !codeVisible; render(true); } }, codeVisible ? "Cacher le code" : "Voir le code");
+
+  const pcards = ps.map(p => h("div", { class: "pcard" + (p.me ? " me" : "") }, p.host ? h("div", { class: "crown", "aria-label": "Hôte" }, "👑") : null, avatar(p.av), h("div", { class: "pname" }, p.name)));
+
+  const counts = h("div", { class: "counts" }, ...MODES.flatMap(m => {
+    const n = st.cnt[m.k] | 0, max = st.max && typeof st.max[m.k] === "number" ? st.max[m.k] : BANK[m.k].length;
+    const open = rulesOpen === m.k;
+    return [
+      h("div", { class: "name-row" },
+        h("button", { class: "info" + (open ? " on" : ""), "aria-expanded": String(open), "aria-label": "Règles : " + m.label, title: "Règles",
+          onclick: () => { rulesOpen = open ? null : m.k; render(true); } }, "i"),
+        h("span", { class: "name" }, m.label)),
+      h("div", { class: "stepper" },
+        iAmHost ? h("button", { class: "round", "aria-label": "Moins", disabled: n <= 0, onclick: () => { H.cnt[m.k] = Math.max(0, n - 1); pushPresence(); render(true); } }, "−") : null,
+        h("b", null, n + "/" + max),
+        iAmHost ? h("button", { class: "round", "aria-label": "Plus", disabled: n >= max, onclick: () => { H.cnt[m.k] = Math.min(max, n + 1); pushPresence(); render(true); } }, "+") : null),
+      open ? h("div", { class: "rules" }, RULES[m.k]) : null
+    ];
+  }));
+  const total = MODES.reduce((s, m) => s + (st.cnt[m.k] | 0), 0);
+
+  return [
+    h("div", { class: "eyebrow" }, "Code de la partie"),
+    squares,
+    h("div", { class: "row" }, copyBtn, seeBtn),
+    copied ? h("div", { class: "eyebrow" }, "Copié !") : null,
+    h("div", { class: "players" }, pcards),
+    h("div", { class: "panel" }, h("div", { class: "panel-title" }, "Version"),
+      verButtons(st.ver === "hard" ? "hard" : "soft", switchVer, !iAmHost),
+      st.ver === "hard" ? h("p", { class: "warn" }, "🔞 Version réservée aux adultes : questions trash et coquines. Personne n'est obligé de répondre, chacun peut dire « joker » à voix haute.") : null,
+      !iAmHost ? h("p", { class: "small muted", style: "text-align:center;margin:8px 0 0" }, "C'est l'hôte qui choisit la version.") : null),
+    h("div", { class: "panel" }, h("div", { class: "panel-title" }, "Questions par jeu"), counts,
+      (st.usedN | 0) > 0 ? h("div", { class: "used" },
+        h("p", { class: "small muted" }, (st.usedN | 0) + " question" + ((st.usedN | 0) > 1 ? "s" : "") + " déjà jouée" + ((st.usedN | 0) > 1 ? "s" : "") + ", retirée" + ((st.usedN | 0) > 1 ? "s" : "") + " de la liste."),
+        iAmHost ? h("button", { class: "btn ghost", onclick: resetUsed }, "Remettre toutes les questions") : null) : null),
+    iAmHost
+      ? h("button", { class: "btn green", disabled: total === 0, onclick: startGame }, "➜ Lancer la partie")
+      : h("p", { class: "note" }, "En attente que l'hôte lance la partie…"),
+    h("button", { class: "btn ghost", onclick: leave }, "Quitter")
+  ];
+}
+
+function modeOf(k) { return MODES.find(m => m.k === k) || MODES[0]; }
+function qText(st) { return (st.q && typeof st.q.text === "string" && clean(st.q.text, 200)) || "Question"; }
+function gChoices(st) { const a = st.q && Array.isArray(st.q.a) ? st.q.a : []; return [clean(a[0] || "Gentil", 80), clean(a[1] || "Pas gentil", 80)]; }
+const NEVER = ["Jamais 😇", "Déjà fait 😏"];
+const VERDICT = ["Coupable 🔨", "Non coupable 🕊️"];
+function nameOf(st, id) { return clean((st.nm && st.nm[id]) || "Parti") || "Parti"; }
+function avOf(ps, id) { const p = ps.find(p => p.id === id); return p ? p.av : 0; }
+
+function progress(st) {
+  const [m] = st.plan[st.i];
+  return h("div", { class: "progress" }, h("span", null, "Question " + (st.i + 1) + "/" + st.plan.length), h("span", null, modeOf(m).label + (st.ver === "hard" ? " · 🔥" : "")));
+}
+function card(chip, title, hint) {
+  return h("div", { class: "panel qcard" }, h("div", { class: "mode-chip" }, chip), h("h2", null, title), hint ? h("p", { class: "small muted" }, hint) : null);
+}
+function pickPlayers(ps, need, opts) {
+  opts = opts || {};
+  const list = ps.filter(p => !(opts.noSelf && p.me));
+  const sendBtn = h("button", { class: "btn green", disabled: draft.pick.length !== Math.min(need, list.length) }, opts.label || "Valider");
+  const grid = h("div", { class: "choices" }, ...list.map(p => {
+    const on = draft.pick.includes(p.id);
+    const b = h("button", { class: "choice" + (on ? " on" : ""), "aria-pressed": String(on) }, avatar(p.av, true),
+      h("span", null, p.name + (p.me ? " (toi)" : "") + (opts.extra ? " · " + opts.extra(p) : "")));
+    b.onclick = () => {
+      if (draft.pick.includes(p.id)) draft.pick = draft.pick.filter(x => x !== p.id);
+      else { draft.pick.push(p.id); if (draft.pick.length > need) draft.pick.shift(); }
+      render(true);
+    };
+    return b;
+  }));
+  sendBtn.onclick = () => submit(need === 1 ? draft.pick[0] : draft.pick.slice());
+  return [grid, sendBtn];
+}
+function twoChoices(labels) {
+  return h("div", { class: "choices", style: "grid-template-columns:1fr 1fr" },
+    ...labels.map((txt, k) => h("button", { class: "choice big", onclick: () => submit(k) }, h("span", null, txt))));
+}
+function countdown(sec) {
+  const el = h("div", { class: "timer", role: "timer" }, String(sec));
+  const t0 = Date.now();
+  const iv = setInterval(() => {
+    if (!el.isConnected && Date.now() - t0 > 1000) { clearInterval(iv); return; }
+    const left = Math.max(0, sec - Math.floor((Date.now() - t0) / 1000));
+    el.textContent = left ? String(left) : "Temps écoulé !";
+    if (!left) clearInterval(iv);
+  }, 250);
+  return el;
+}
+
+function viewQuestion(st, ps, done) {
+  const [m] = st.plan[st.i], mode = modeOf(m), s = st.s | 0, cur = st.cur || {};
+  const dkey = st.gid + "|" + st.i + "|" + s;
+  if (draft.key !== dkey) draft = { key: dkey, pick: [], text: "", tiers: [], num: "" };
+  const out = [progress(st)];
+  const accName = cur.acc ? nameOf(st, cur.acc) : "Quelqu'un";
+  const accused = cur.acc && cur.acc === myId();
+
+  // carte de question
+  if (m === "i" && s === 0) out.push(card(mode.label, clean(cur.imp && cur.imp === myId() ? st.q.alt : st.q.text, 200), "Réponds par un nombre. Attention : un imposteur a reçu une autre question…"));
+  else if (m === "i") out.push(card(mode.label, "La question était : " + qText(st), "Regardez les réponses. Qui avait une autre question ?"));
+  else if (m === "x" && s === 0) out.push(card(mode.label, "Qui est coupable de : " + qText(st).toLowerCase() + " ?", "Le plus désigné passe au tribunal."));
+  else if (m === "x") out.push(card("Accusé : " + accName, accName + " est accusé de : " + qText(st).toLowerCase(), s === 1 ? "30 secondes pour se défendre à voix haute !" : (accused ? "Le jury délibère…" : "Coupable ou non coupable ?")));
+  else out.push(card(mode.label, qText(st), mode.hint));
+
+  if (m === "x" && s === 1) {
+    out.push(h("div", { class: "panel stack", style: "text-align:center;align-items:center" }, avatar(avOf(ps, cur.acc)), h("div", { class: "pname" }, accName), countdown(30),
+      h("p", { class: "note", style: "margin:0 auto" }, accused ? "C'est à toi : défends-toi !" : "Écoutez la défense de l'accusé.")));
+    out.push(...accusers(st, ps, cur.by, cur.acc));
+  } else if (m === "x" && s === 2 && accused) {
+    out.push(h("p", { class: "note" }, "Tu es l'accusé : tu ne votes pas. Attends le verdict…"));
+  } else if (done) {
+    out.push(h("p", { class: "note" }, "Réponse envoyée. En attente des autres…"));
+    out.push(h("div", { class: "waiting" }, ...eligible(st, ps).map(p => h("div", { class: "wchip" + (answered(p, st) ? " done" : "") }, avatar(p.av, true), h("span", null, p.name), answered(p, st) ? h("span", { class: "tick" }, "OK") : null))));
+  } else if (m === "u" || m === "d" || (m === "x" && s === 0)) {
+    out.push(...pickPlayers(ps, m === "d" ? 2 : 1));
+  } else if (m === "i" && s === 1) {
+    const ans = cur.ans || {};
+    out.push(h("p", { class: "note" }, "Les réponses de chacun sont affichées. Vote pour l'imposteur."));
+    out.push(...pickPlayers(ps, 1, { noSelf: true, label: "Démasquer", extra: p => (p.id in ans ? String(ans[p.id]) : "—") }));
+    out.push(h("div", { class: "panel" }, h("div", { class: "panel-title" }, "Ta réponse"), h("p", { style: "text-align:center;margin:0" }, String(myId() in ans ? ans[myId()] : "—"))));
+  } else if (m === "i") {
+    const inp = h("input", { class: "inp", id: "num", type: "number", inputmode: "decimal", step: "any", placeholder: "Ton nombre", autocomplete: "off" });
+    inp.value = draft.num;
+    const sendBtn = h("button", { class: "btn green", disabled: draft.num === "" || !Number.isFinite(Number(draft.num)) }, "Valider");
+    inp.oninput = () => { draft.num = inp.value; sendBtn.disabled = inp.value === "" || !Number.isFinite(Number(inp.value)); };
+    inp.onkeydown = e => { if (e.key === "Enter" && !sendBtn.disabled) sendBtn.click(); };
+    sendBtn.onclick = () => submit(Math.max(-1e6, Math.min(1e6, Number(draft.num))));
+    out.push(h("div", { class: "panel stack" }, h("label", { class: "lab", for: "num" }, "Ta réponse"), inp), sendBtn);
+  } else if (m === "g" || m === "p") {
+    out.push(twoChoices(gChoices(st)));
+  } else if (m === "n") {
+    out.push(twoChoices(NEVER));
+  } else if (m === "x") {
+    out.push(twoChoices(VERDICT));
+  } else if (m === "a") {
+    const ta = h("textarea", { class: "inp", id: "anecdote", maxlength: String(MAX_TEXT), placeholder: "Raconte en une ou deux phrases…" });
+    ta.value = draft.text;
+    const counter = h("p", { class: "small muted", style: "text-align:right" }, draft.text.length + "/" + MAX_TEXT);
+    const sendBtn = h("button", { class: "btn green", disabled: !draft.text.trim() }, "Envoyer");
+    ta.oninput = () => { draft.text = ta.value; counter.textContent = ta.value.length + "/" + MAX_TEXT; sendBtn.disabled = !ta.value.trim(); };
+    sendBtn.onclick = () => submit(clean(draft.text, MAX_TEXT));
+    out.push(h("div", { class: "panel stack" }, h("label", { class: "lab", for: "anecdote" }, "Ton anecdote (anonyme)"), ta, counter), sendBtn);
+  } else if (m === "t") {
+    const items = cur.items || [];
+    const sendBtn = h("button", { class: "btn green" }, "Valider ma tier list");
+    sendBtn.disabled = !items.every((_, k) => draft.tiers[k] != null);
+    const rows = items.map((it, k) => h("div", { class: "tier-row" }, h("span", { class: "it" }, it),
+      h("div", { class: "tbtns", role: "group", "aria-label": it },
+        ...TIERS.map((t, ti) => h("button", { class: "tb T" + ti + (draft.tiers[k] === ti ? " on" : ""), "aria-pressed": String(draft.tiers[k] === ti),
+          onclick: () => { draft.tiers[k] = ti; render(true); } }, t)))));
+    sendBtn.onclick = () => submit(items.map((_, k) => draft.tiers[k]));
+    out.push(h("div", { class: "panel" }, ...rows), sendBtn);
+  }
+
+  if (m === "x" && s === 2) out.push(...accusers(st, ps, cur.by, cur.acc));
+  if (iAmHost) {
+    const el = eligible(st, ps), n = el.filter(p => answered(p, st)).length;
+    const label = m === "x" && s === 1 ? "Passer au verdict" : ((m === "i" || m === "x") && s === 0 ? "Étape suivante" : "Révéler maintenant") + " (" + n + "/" + el.length + ")";
+    out.push(h("div", { class: "row" }, h("button", { class: "btn ghost", onclick: advance }, label)));
+  }
+  return out;
+}
+
+function voteBars(v, st, ps, opts) {
+  opts = opts || {};
+  const rows = Object.keys(v).map(id => [id, Array.isArray(v[id]) ? v[id] : []]).sort((a, b) => b[1].length - a[1].length);
+  const max = rows.length ? rows[0][1].length : 0;
+  if (!rows.length) return h("p", { class: "note" }, "Personne n'a voté.");
+  return h("div", { class: "panel bars" }, ...rows.map(([id, voters]) =>
+    h("div", { class: "bar" + (voters.length === max ? " top" : "") }, avatar(avOf(ps, id), true),
+      h("div", { class: "bar-body" },
+        h("div", { class: "bar-top" }, h("span", null, (voters.length === max ? "👑 " : "") + nameOf(st, id) + (opts.tag ? opts.tag(id) : "")), h("b", null, voters.length + " vote" + (voters.length > 1 ? "s" : ""))),
+        h("div", { class: "track" }, h("div", { class: "fill", style: "width:" + Math.round(voters.length / Math.max(1, max) * 100) + "%" })),
+        h("div", { class: "voters" }, "Par : " + voters.map(x => nameOf(st, x)).join(", "))))));
+}
+function splitCols(st, ps, c, labels, classes) {
+  const col = k => h("div", { class: "col " + classes[k] }, h("h3", null, labels[k]),
+    ...Object.keys(c).filter(id => c[id] === k).map(id => h("div", { class: "who" }, avatar(avOf(ps, id), true), h("span", null, nameOf(st, id)))));
+  return h("div", { class: "split" }, col(0), col(1));
+}
+
+function accusers(st, ps, by, acc) {
+  by = by || {};
+  const mine = Array.isArray(by[acc]) ? by[acc] : [];
+  return [
+    h("div", { class: "panel accusers" }, h("div", { class: "panel-title" }, "Qui a désigné " + nameOf(st, acc) + " ?"),
+      mine.length ? h("div", { class: "twho", style: "justify-content:center" }, ...mine.map(id => h("span", { class: "wchip2" }, avatar(avOf(ps, id), true), h("span", null, nameOf(st, id)))))
+        : h("p", { class: "small muted", style: "text-align:center;margin:0" }, "Personne : désigné au hasard après une égalité.")),
+    Object.keys(by).length > 1 ? h("details", { class: "allvotes" }, h("summary", null, "Voir tous les votes"), voteBars(by, st, ps)) : null
+  ];
+}
+
+function viewReveal(st, ps) {
+  const [m] = st.plan[st.i], res = st.res || {}, cur = st.cur || {};
+  const out = [progress(st)];
+  if (m === "x") out.push(card("Verdict", nameOf(st, res.acc) + " est accusé de : " + qText(st).toLowerCase()));
+  else if (m === "i") out.push(card("Verdict", "La question était : " + qText(st)));
+  else out.push(card("Verdict", qText(st)));
+
+  if (m === "u" || m === "d") out.push(voteBars(res.v || {}, st, ps));
+  else if (m === "g") out.push(splitCols(st, ps, res.c || {}, gChoices(st), ["nice", "mean"]));
+  else if (m === "p") out.push(splitCols(st, ps, res.c || {}, gChoices(st), ["opt", "opt2"]));
+  else if (m === "n") out.push(splitCols(st, ps, res.c || {}, NEVER, ["nice", "mean"]));
+  else if (m === "a") {
+    const l = Array.isArray(res.l) ? res.l : [];
+    out.push(l.length ? h("div", { class: "anec" }, ...l.map(([t, id]) => h("div", { class: "a" }, h("div", null, clean(t, MAX_TEXT)), st.showA ? h("div", { class: "by" }, "— " + nameOf(st, id)) : null)))
+      : h("p", { class: "note" }, "Aucune anecdote envoyée."));
+    if (!st.showA) out.push(h("p", { class: "note" }, "À vous de deviner qui a écrit quoi, à voix haute."));
+    if (iAmHost && !st.showA && l.length) out.push(h("button", { class: "btn purple", onclick: () => { H.showA = 1; pushPresence(); } }, "Révéler les auteurs"));
+  } else if (m === "t") {
+    const items = cur.items || [], votes = res.votes || {};
+    const voters = Object.keys(votes);
+    out.push(voters.length ? h("div", { class: "tvotes" }, ...items.map((it, k) => h("div", { class: "tcard" },
+      h("div", { class: "tcard-h" }, it),
+      ...TIERS.map((t, ti) => {
+        const who = voters.filter(id => Array.isArray(votes[id]) && votes[id][k] === ti);
+        return who.length ? h("div", { class: "trow" }, h("span", { class: "tl-sm T" + ti }, t),
+          h("div", { class: "twho" }, ...who.map(id => h("span", { class: "wchip2" }, avatar(avOf(ps, id), true), h("span", null, nameOf(st, id)))))) : null;
+      }))))
+      : h("p", { class: "note" }, "Personne n'a envoyé sa tier list."));
+  } else if (m === "i") {
+    const ans = cur.ans || {};
+    out.push(h("div", { class: "award big-verdict " + (res.caught ? "good" : "bad") }, avatar(avOf(ps, res.imp)),
+      h("div", null, h("div", { class: "t" }, "L'imposteur était"), h("div", { class: "n" }, nameOf(st, res.imp)),
+        h("div", { class: "small muted" }, "Sa question : " + clean(st.q && st.q.alt, 200)),
+        h("div", { class: "vtag" }, res.caught ? "Démasqué !" : "Il s'en sort !"))));
+    out.push(voteBars(res.v || {}, st, ps, { tag: id => (id in ans ? " · " + ans[id] : "") }));
+  } else if (m === "x") {
+    out.push(h("div", { class: "award big-verdict " + (res.ok ? "bad" : "good") }, avatar(avOf(ps, res.acc)),
+      h("div", null, h("div", { class: "t" }, "Le jury a tranché"), h("div", { class: "n" }, res.ok ? "COUPABLE 🔨" : "NON COUPABLE 🕊️"),
+        h("div", { class: "small muted" }, (res.gc | 0) + " coupable · " + (res.nc | 0) + " non coupable"))));
+    out.push(...accusers(st, ps, cur.by, res.acc));
+  }
+
+  if (iAmHost) out.push(h("button", { class: "btn green", onclick: nextRound }, st.i + 1 >= st.plan.length ? "Voir les résultats" : "Question suivante"));
+  else out.push(h("p", { class: "note" }, "L'hôte passe à la suite quand tout le monde a fini de débattre."));
+  return out;
+}
+
+const pl = (n, w) => n + " " + w + (n > 1 ? "s" : "");
+function bestOf(ids, f, dir) { if (!ids.length) return []; const v = dir > 0 ? Math.max(...ids.map(f)) : Math.min(...ids.map(f)); return ids.filter(id => f(id) === v); }
+
+function recap(st) {
+  const hist = Array.isArray(st.hist) ? st.hist : [];
+  const nm = id => nameOf(st, id), names = ids => ids.map(nm).join(", ");
+  const line = (q, a, cls) => h("div", { class: "rline" }, h("div", { class: "rq" }, String(q || "")), h("div", { class: "ra" + (cls ? " " + cls : "") }, String(a || "")));
+  const sec = (k, rows) => rows.length ? h("div", { class: "panel recap" }, h("div", { class: "panel-title" }, "Récap · " + modeOf(k).label), ...rows) : null;
+  const of = k => hist.filter(e => e && e.m === k);
+  const map = k => st[k] || {};
+  const out = [];
+  for (const k of ["u", "d"]) out.push(sec(k, of(k).map(e => line(e.t, Array.isArray(e.w) && e.w.length ? e.w.map(([id, n]) => nm(id) + " (" + pl(n, "vote") + ")").join(k === "u" ? " / " : ", ") : "Aucun vote"))));
+
+  const kind = map("kind"), mean = map("mean");
+  const gIds = [...new Set([...Object.keys(kind), ...Object.keys(mean)])];
+  if (gIds.length) {
+    const nice = id => kind[id] | 0, bad = id => mean[id] | 0;
+    const maxN = Math.max(...gIds.map(nice)), maxB = Math.max(...gIds.map(bad));
+    out.push(sec("g", [
+      line("😇 Les plus gentils", maxN > 0 ? names(gIds.filter(id => nice(id) === maxN)) + " (" + pl(maxN, "choix gentil") + ")" : "Personne. Bravo.", "good"),
+      line("😈 Les connards", maxB > 0 ? names(gIds.filter(id => bad(id) === maxB)) + " (" + pl(maxB, "choix pas gentil") + ")" : "Personne, vous êtes des anges.", "bad"),
+      ...gIds.slice().sort((a, b) => nice(b) - nice(a) || bad(a) - bad(b)).map(id => line(nm(id), nice(id) + " gentil · " + bad(id) + " pas gentil"))
+    ]));
+  }
+
+  const pH = of("p");
+  if (pH.length) {
+    const maj = map("maj"), mino = map("mino"), ids = [...new Set([...Object.keys(maj), ...Object.keys(mino)])];
+    const rows = pH.map(e => { const o = e.o || ["?", "?"], k = e.k || [0, 0]; return line(o[0] + "  ou  " + o[1], k[0] === k[1] ? "Égalité (" + k[0] + " partout)" : "Majorité : " + o[k[0] > k[1] ? 0 : 1] + " (" + Math.max(k[0], k[1]) + " contre " + Math.min(k[0], k[1]) + ")"); });
+    if (ids.length) {
+      const mj = bestOf(ids, id => maj[id] | 0, 1), mn = bestOf(ids, id => mino[id] | 0, 1);
+      if ((maj[mj[0]] | 0) > 0) rows.unshift(line("🐑 Le mouton (toujours avec la majorité)", names(mj), "good"));
+      if ((mino[mn[0]] | 0) > 0) rows.unshift(line("🦄 Le rebelle (toujours à contre-courant)", names(mn), "bad"));
+    }
+    out.push(sec("p", rows));
+  }
+
+  const nH = of("n");
+  if (nH.length) {
+    const did = map("did"), ids = Object.keys(did);
+    const rows = nH.map(e => line(e.t, Array.isArray(e.ids) && e.ids.length ? "Déjà fait : " + names(e.ids) : "Personne ne l'a fait"));
+    if (ids.length) {
+      const wild = bestOf(ids, id => did[id] | 0, 1), wise = bestOf(ids, id => did[id] | 0, -1);
+      rows.unshift(line("😇 Le plus sage", names(wise) + " (" + (did[wise[0]] | 0) + " « déjà fait »)", "good"));
+      if ((did[wild[0]] | 0) > (did[wise[0]] | 0)) rows.unshift(line("😏 Le plus déjanté", names(wild) + " (" + (did[wild[0]] | 0) + " « déjà fait »)", "bad"));
+    }
+    out.push(sec("n", rows));
+  }
+
+  out.push(sec("a", of("a").map(e => line(e.t, pl(e.n | 0, "anecdote") + " racontée" + ((e.n | 0) > 1 ? "s" : "")))));
+  out.push(sec("t", of("t").map(e => line(e.t, "Top : " + clean(e.top, 40) + " · Flop : " + clean(e.low, 40)))));
+
+  const iH = of("i");
+  if (iH.length) {
+    const det = map("det"), ids = Object.keys(det);
+    const rows = iH.map(e => line(e.t, "Imposteur : " + nm(e.imp) + (e.c ? " → démasqué" : " → jamais démasqué"), e.c ? "good" : "bad"));
+    if (ids.length) { const d = bestOf(ids, id => det[id] | 0, 1); rows.unshift(line("🕵️ Meilleur détective", names(d) + " (" + (det[d[0]] | 0) + ((det[d[0]] | 0) > 1 ? " bons votes" : " bon vote") + ")", "good")); }
+    out.push(sec("i", rows));
+  }
+
+  out.push(sec("x", of("x").map(e => line(e.t, nm(e.acc) + " : " + (e.ok ? "COUPABLE" : "non coupable") + " (" + (e.gc | 0) + " contre " + (e.nc | 0) + ")", e.ok ? "bad" : "good"))));
+  return out.filter(Boolean);
+}
+
+function viewEnd(st) {
+  const ps = players();
+  const tot = st.tot || {}, kind = st.kind || {}, mean = st.mean || {}, did = st.did || {}, det = st.det || {}, guil = st.guil || {};
+  const all = [...new Set([...Object.keys(st.nm || {}), ...Object.keys(tot)])];
+  const votes = id => tot[id] | 0;
+  const ranked = all.slice().sort((a, b) => votes(b) - votes(a));
+  const awards = [];
+  if (Object.keys(tot).length) {
+    const top = bestOf(all, votes, 1), low = bestOf(all, votes, -1);
+    awards.push(["🎯 Cible n°1 du groupe", top, pl(votes(top[0]), "vote") + " reçu" + (votes(top[0]) > 1 ? "s" : "")]);
+    if (all.length > 1 && votes(low[0]) < votes(top[0])) awards.push(["👻 L'intouchable", low, votes(low[0]) ? "Seulement " + pl(votes(low[0]), "vote") + " reçu" + (votes(low[0]) > 1 ? "s" : "") : "Personne n'a voté contre lui"]);
+  }
+  const kk = [...new Set([...Object.keys(kind), ...Object.keys(mean)])];
+  if (kk.length) {
+    const nice = id => kind[id] | 0, bad = id => mean[id] | 0;
+    const angels = bestOf(kk, nice, 1), demons = bestOf(kk, bad, 1);
+    if (nice(angels[0]) > 0) awards.push(["😇 Ange du groupe", angels, pl(nice(angels[0]), "choix gentil")]);
+    if (bad(demons[0]) > 0) awards.push(["😈 Démon du groupe", demons, pl(bad(demons[0]), "choix pas gentil")]);
+  }
+  const dk = Object.keys(did);
+  if (dk.length) { const w = bestOf(dk, id => did[id] | 0, 1); if ((did[w[0]] | 0) > 0) awards.push(["😏 Le plus déjanté", w, (did[w[0]] | 0) + " « déjà fait »"]); }
+  const ek = Object.keys(det);
+  if (ek.length) { const w = bestOf(ek, id => det[id] | 0, 1); if ((det[w[0]] | 0) > 0) awards.push(["🕵️ Meilleur détective", w, (det[w[0]] | 0) + ((det[w[0]] | 0) > 1 ? " imposteurs démasqués" : " imposteur démasqué")]); }
+  const gk = Object.keys(guil);
+  if (gk.length) { const w = bestOf(gk, id => guil[id] | 0, 1); if ((guil[w[0]] | 0) > 0) awards.push(["⚖️ Casier le plus chargé", w, pl(guil[w[0]] | 0, "condamnation")]); }
+
+  const out = [...header("Fin de la partie"),
+    awards.length ? h("div", { class: "stack" }, ...awards.map(([t, ids, sub]) => h("div", { class: "award" }, avatar(avOf(ps, ids[0])),
+      h("div", null, h("div", { class: "t" }, t), h("div", { class: "n" }, ids.map(id => nameOf(st, id)).join(", ")), h("div", { class: "small muted" }, sub)))))
+      : h("p", { class: "note" }, "Pas assez de votes pour décerner des titres.")];
+  out.push(...recap(st));
+  if (ranked.length > 1) out.push(h("div", { class: "panel" }, h("div", { class: "panel-title" }, "Votes reçus au total"),
+    h("div", { class: "bars" }, ...ranked.map(id => h("div", { class: "bar-top" }, h("span", null, nameOf(st, id)), h("b", null, String(votes(id))))))));
+  if (iAmHost) out.push(h("button", { class: "btn green", onclick: backToLobby }, "Nouvelle partie"));
+  else out.push(h("p", { class: "note" }, "L'hôte peut relancer une partie."));
+  out.push(h("button", { class: "btn ghost", onclick: leave }, "Quitter"));
+  return out;
+}
+
+/* ---------- musique de fond (générée en direct, 100 % originale, libre de droits) ---------- */
+const Music = (() => {
+  const SONGS = {
+    // Soft : la mineur, détendu (Am - F - C - G)
+    soft: { bpm: 92, prog: [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]], arp: [0, 1, 2, 1, 0, 1, 2, 1],
+      lead: [76, null, 74, null, 72, null, 69, null, 72, null, null, 74, 76, null, 79, null, 77, null, 76, null, 72, null, 69, null, 71, null, 72, null, 74, null, null, null],
+      bassHits: [0, 3, 4, 6], drums: "soft", cutoff: 2600 },
+    // Hardcore : ré mineur, plus nerveux (Dm - Bb - C - A)
+    hard: { bpm: 122, prog: [[50, 53, 57], [46, 50, 53], [48, 52, 55], [45, 49, 52]], arp: [0, 2, 1, 2, 0, 2, 1, 2],
+      lead: [74, null, 77, 74, 81, null, 77, null, 70, null, 74, 70, 77, null, 74, null, 72, null, 76, 72, 79, null, 76, null, 73, null, 76, 73, 81, null, 79, null],
+      bassHits: [0, 2, 3, 4, 6, 7], drums: "hard", cutoff: 4200 }
+  };
+  let ctx = null, master = null, filter = null, timer = null, step = 0, next = 0, playing = false, mood = "soft", noise = null;
+  let vol = (() => { const v = parseFloat(store.get("tribunal-vol")); return Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.4; })();
+  let muted = store.get("tribunal-mute") === "1";
+  const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+  function level() { return muted ? 0 : vol * vol * 0.5; }
+  function ensure() {
+    if (ctx) return true;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+    try { ctx = new AC(); } catch (e) { return false; }
+    master = ctx.createGain(); master.gain.value = level();
+    filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = SONGS[mood].cutoff;
+    filter.connect(master); master.connect(ctx.destination);
+    const len = Math.floor(ctx.sampleRate * 0.25); noise = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = noise.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return true;
+  }
+  function tone(t, freq, dur, type, gain) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(filter); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function kick(t, gain) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
+    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.2);
+  }
+  function hiss(t, dur, gain, freq) {
+    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noise; f.type = "highpass"; f.frequency.value = freq;
+    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + dur + 0.02);
+  }
+  function schedule() {
+    const song = SONGS[mood], eighth = 60 / song.bpm / 2;
+    while (next < ctx.currentTime + 0.25) {
+      const beat = step % 8, bar = Math.floor(step / 8) % 4, chord = song.prog[bar], t = next;
+      if (song.bassHits.includes(beat)) tone(t, hz(chord[0] - 24), eighth * 0.9, "triangle", 0.30);
+      tone(t, hz(chord[song.arp[beat]] + (beat >= 4 ? 12 : 0)), eighth * 0.7, "square", 0.045);
+      const ln = song.lead[step % 32]; if (ln && Math.floor(step / 32) % 2 === 1) tone(t, hz(ln), eighth * 1.6, "square", 0.05);
+      if (song.drums === "soft") { if (beat === 0) kick(t, 0.35); if (beat % 2 === 1) hiss(t, 0.03, 0.025, 7000); }
+      else { if (beat % 4 === 0) kick(t, 0.5); if (beat === 2 || beat === 6) hiss(t, 0.12, 0.09, 1800); hiss(t, 0.025, 0.03, 8000); }
+      next += eighth; step++;
+    }
+  }
+  return {
+    start() {
+      if (!ensure()) return;
+      if (ctx.state === "suspended") ctx.resume().catch(() => {});
+      if (playing) return;
+      playing = true; next = ctx.currentTime + 0.08; step = 0;
+      timer = setInterval(schedule, 60); schedule();
+    },
+    setMood(m) {
+      m = m === "hard" ? "hard" : "soft"; if (m === mood) return;
+      mood = m; if (filter) filter.frequency.setTargetAtTime(SONGS[m].cutoff, ctx.currentTime, 0.2);
+      step = Math.floor(step / 8) * 8;
+    },
+    setVolume(v) { vol = Math.min(1, Math.max(0, v)); store.set("tribunal-vol", String(vol)); if (vol > 0 && muted) this.setMuted(false); else if (master) master.gain.setTargetAtTime(level(), ctx.currentTime, 0.05); },
+    setMuted(m) { muted = !!m; store.set("tribunal-mute", muted ? "1" : "0"); if (master) master.gain.setTargetAtTime(level(), ctx.currentTime, 0.05); if (!muted) this.start(); },
+    get muted() { return muted; }, get volume() { return vol; }
+  };
+})();
+
+(function musicControls() {
+  const btn = h("button", { class: "music-btn", id: "music-btn", type: "button", "aria-expanded": "false", "aria-label": "Musique et volume", title: "Musique" });
+  const panel = h("div", { class: "music-panel", id: "music-panel", hidden: true });
+  const mute = h("button", { class: "music-mute", type: "button" });
+  const slider = h("input", { type: "range", id: "music-vol", min: "0", max: "100", step: "1", "aria-label": "Volume de la musique" });
+  const pct = h("span", { class: "music-pct" });
+  function sync() {
+    const v = Math.round(Music.volume * 100);
+    slider.value = String(v); pct.textContent = Music.muted ? "Coupé" : v + " %";
+    btn.textContent = Music.muted || v === 0 ? "🔇" : "🎵";
+    mute.textContent = Music.muted ? "🔈 Activer le son" : "🔇 Couper le son";
+  }
+  btn.onclick = e => { e.stopPropagation(); panel.hidden = !panel.hidden; btn.setAttribute("aria-expanded", String(!panel.hidden)); };
+  mute.onclick = () => { Music.setMuted(!Music.muted); sync(); };
+  slider.oninput = () => { Music.setVolume(Number(slider.value) / 100); sync(); };
+  panel.append(h("div", { class: "music-title" }, "Musique"), h("div", { class: "music-row" }, slider, pct), mute,
+    h("p", { class: "music-note" }, "Réglage propre à ton appareil."));
+  document.addEventListener("pointerdown", e => { if (!panel.hidden && !panel.contains(e.target) && e.target !== btn) { panel.hidden = true; btn.setAttribute("aria-expanded", "false"); } });
+  document.body.append(btn, panel);
+  sync();
+  const kick = () => { if (!Music.muted) Music.start(); };
+  ["pointerdown", "keydown", "touchend"].forEach(ev => document.addEventListener(ev, kick, { once: true, passive: true }));
+})();
+
+render(true);
+</script>
+</body>
+</html>
