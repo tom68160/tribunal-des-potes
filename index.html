@@ -25,7 +25,7 @@ body{margin:0}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:linear-gradient(180deg,var(--field),var(--field-2));color:var(--ink);font-family:var(--f-body);font-size:16px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:64px 48px}
 #app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:22px}
 .eyebrow{font-family:var(--f-display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);opacity:.9;text-align:center}
 h1{font-family:var(--f-logo);font-weight:700;font-size:clamp(26px,7vw,40px);line-height:1.05;margin:0;text-align:center;text-wrap:balance;
@@ -170,15 +170,28 @@ body[data-ver="hard"]{--field:#3d0f2b;--field-2:#6e1734}
 .verbtn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .warn{margin:12px 0 0;padding:10px 12px;background:#5a1430;border-left:4px solid #ff5a6a;font-size:14px;line-height:1.45}
 /* musique */
-.music-btn{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));z-index:20;width:44px;height:44px;border:3px solid var(--panel-line);background:var(--panel);color:var(--ink);font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:3px 3px 0 rgba(17,38,79,.45)}
+.music-btn{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));z-index:20;width:44px;height:44px;border:3px solid var(--panel-line);background:var(--panel);color:var(--ink);font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:3px 3px 0 rgba(17,38,79,.45)}
 .music-btn:focus-visible,.music-mute:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.music-panel{position:fixed;top:calc(60px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));z-index:20;width:220px;max-width:calc(100vw - 20px);background:var(--panel);border:3px solid var(--panel-line);padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:4px 4px 0 rgba(17,38,79,.45)}
+.music-panel{position:absolute;top:calc(60px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));z-index:20;width:220px;max-width:calc(100vw - 20px);background:var(--panel);border:3px solid var(--panel-line);padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:4px 4px 0 rgba(17,38,79,.45)}
 .music-title{font-family:var(--f-display);font-size:12px;text-transform:uppercase;letter-spacing:.1em;text-align:center}
 .music-row{display:flex;align-items:center;gap:10px}
 .music-row input{flex:1;min-width:0;accent-color:var(--gold)}
 .music-pct{font-family:var(--f-display);font-weight:700;font-size:14px;min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
 .music-mute{font-family:var(--f-display);font-weight:600;font-size:13px;padding:8px;border:2px solid #3f5aa3;background:#16285a;color:var(--ink);cursor:pointer}
 .music-note{margin:0;font-size:12px;color:var(--ink-dim);text-align:center}
+/* classement */
+.winlose{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wl h3{font-family:var(--f-display);font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}
+.wl.w h3{color:#7ff0a8} .wl.l h3{color:#ff9a9a}
+.pts{font-family:var(--f-display);color:var(--gold);margin-left:2px}
+.rk-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 0;border-bottom:2px dashed #34508f}
+.rk-row:last-of-type{border-bottom:0}
+.rk-row.last .rk-name{color:#ff9a9a}
+.rk-pos{font-family:var(--f-display);font-weight:700;font-size:18px;text-align:center}
+.rk-name{overflow-wrap:anywhere;font-size:16px}
+.rk-wl{font-size:13px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.rk-pts{font-family:var(--f-display);font-size:16px;color:var(--gold);font-variant-numeric:tabular-nums}
+@media (max-width:420px){.winlose{grid-template-columns:1fr}}
 /* règles */
 .name-row{display:flex;align-items:center;gap:8px;min-width:0}
 .info{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--panel-line);background:transparent;color:var(--panel-line);font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:13px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
@@ -786,7 +799,7 @@ const MODES = [
   { k: "x", label: "Le procès", hint: "Vote pour l'accusé", def: 2 }
 ];
 
-const RULES = {"u": "Une question du type « Qui est le plus susceptible de… ? ». Chacun vote pour un joueur, même soi-même. Le plus désigné prend la couronne, et on voit qui a voté pour qui.", "d": "Même principe, mais tu choisis deux joueurs. Les plus désignés sont révélés, avec le nom de ceux qui ont voté pour eux.", "g": "Une situation et deux réactions : une gentille, une pas gentille. Réponds honnêtement, tout le monde verra ton choix. C'est ce qui désigne l'Ange et le Démon du groupe.", "p": "Deux options, tu dois en choisir une. Les deux camps sont révélés. À la fin : le mouton (toujours avec la majorité) et le rebelle (toujours à contre-courant).", "n": "Une phrase « Je n'ai jamais… ». Réponds « Jamais » ou « Déjà fait », et les réponses sont montrées à tout le monde. Celui qui a le plus de « Déjà fait » est le plus déjanté.", "a": "Un thème personnel. Chacun écrit son anecdote en secret. Elles s'affichent mélangées, vous devinez à voix haute qui a écrit quoi, puis l'hôte peut révéler les auteurs.", "t": "Classe chaque élément, ou chaque pote, de S (le top) à D (le pire). La tier list affichée est la moyenne de tout le groupe.", "i": "Tout le monde répond à la même question par un nombre… sauf l'imposteur, qui a reçu une autre question sans le savoir. Les réponses s'affichent, vous débattez, puis vous votez pour le démasquer.", "x": "Une accusation : « Qui est coupable de… ? ». Le groupe vote pour désigner l'accusé. Il a 30 secondes pour se défendre à voix haute, puis le jury vote coupable ou non coupable."};
+const RULES = {"u": "Une question du type « Qui est le plus susceptible de… ? ». Chacun vote pour un joueur, même soi-même. Le plus désigné prend la couronne, et on voit qui a voté pour qui.", "d": "Même principe, mais tu choisis deux joueurs. Les plus désignés sont révélés, avec le nom de ceux qui ont voté pour eux.", "g": "Une situation et deux réactions : une gentille, une pas gentille. Réponds honnêtement, tout le monde verra ton choix. C'est ce qui désigne l'Ange et le Démon du groupe.", "p": "Deux options, tu dois en choisir une. Les deux camps sont révélés. À la fin : le mouton (toujours avec la majorité) et le rebelle (toujours à contre-courant).", "n": "Une phrase « Je n'ai jamais… ». Réponds « Jamais » ou « Déjà fait », et les réponses sont montrées à tout le monde. Celui qui a le plus de « Déjà fait » est le plus déjanté.", "a": "Un thème personnel. Chacun écrit son anecdote en secret. Elles s'affichent mélangées, vous devinez à voix haute qui a écrit quoi, puis l'hôte peut révéler les auteurs.", "t": "Classe chaque élément, ou chaque pote, de S (le top) à D (le pire). La tier list affichée est la moyenne de tout le groupe.", "i": "Tout le monde répond à la même question par un nombre… sauf l'imposteur, qui a reçu une autre question sans le savoir. Les réponses s'affichent, vous débattez, puis vous votez pour le démasquer. Démasqué : +1 point pour chaque joueur qui a voté contre lui. Pas démasqué : +3 points pour l'imposteur.", "x": "Une accusation : « Qui est coupable de… ? ». Le groupe vote pour désigner l'accusé. Il a 30 secondes pour se défendre à voix haute, puis le jury vote coupable ou non coupable. Les jurés qui votent comme la majorité gagnent +1 point. Si l'accusé est acquitté, il gagne +3 points."};
 let rulesOpen = null;
 const AVATARS = ["🦊","🐸","🐙","👾","🦄","🐼","🍕","🤖","🐲","🦖","👻","🐧"];
 const AVCOL = ["#e8484f","#2fd06a","#a35ae6","#74d4ef","#f6c94c","#ff8fb1","#ff9a3c","#8ea2ff","#3ccf9e","#d36af0","#f0f0f0","#5bc0eb"];
@@ -1134,7 +1147,9 @@ async function leave() {
 }
 
 /* ---------- host logic ---------- */
-const STATS = ["tot", "kind", "mean", "maj", "mino", "did", "det", "guil"];
+const STATS = ["tot", "kind", "mean", "maj", "mino", "did", "det", "guil", "ri", "rx"];
+// classement : map[id] = [points, victoires, défaites]
+function score(map, id, pts, win) { if (!id) return; const r = H[map][id] || [0, 0, 0]; H[map][id] = [r[0] + pts, r[1] + (win ? 1 : 0), r[2] + (win ? 0 : 1)]; }
 function eligible(st, ps) {
   const [m] = st.plan[st.i] || [];
   const s = st.s | 0;
@@ -1248,7 +1263,11 @@ function reveal() {
     const arr = Object.keys(v).map(id => [id, v[id].length]).sort((a, b) => b[1] - a[1]);
     const caught = !!(arr.length && arr[0][0] === imp && (!arr[1] || arr[1][1] < arr[0][1]));
     (v[imp] || []).forEach(id => bump("det", id));
-    res = { v, imp, caught };
+    const pts = {}, win = [], lose = [];
+    const add = (id, n, w) => { pts[id] = n; (w ? win : lose).push(id); score("ri", id, n, w); };
+    if (imp) add(imp, caught ? 0 : 3, !caught);
+    for (const p of ps) if (p.id !== imp) { const found = typeof p.ans.v === "string" && p.ans.v === imp; add(p.id, caught && found ? 1 : 0, caught && found); }
+    res = { v, imp, caught, pts, win, lose };
     H.hist.push({ m, t: t70, imp, c: caught ? 1 : 0 });
   } else if (m === "x") {
     const acc = H.cur && H.cur.acc;
@@ -1256,7 +1275,11 @@ function reveal() {
     const gc = voters.filter(p => p.ans.v === 0).length, nc = voters.filter(p => p.ans.v === 1).length;
     const ok = gc > nc;
     if (acc) bump("guil", acc, ok ? 1 : 0);
-    res = { acc, gc, nc, ok };
+    const pts = {}, win = [], lose = [];
+    const add = (id, n, w) => { pts[id] = n; (w ? win : lose).push(id); score("rx", id, n, w); };
+    if (acc) add(acc, ok ? 0 : 3, !ok);
+    for (const p of voters) { const right = ok ? p.ans.v === 0 : p.ans.v === 1; add(p.id, right ? 1 : 0, right); }
+    res = { acc, gc, nc, ok, pts, win, lose };
     H.hist.push({ m, t: t70, acc, ok: ok ? 1 : 0, gc, nc });
   }
   H.res = res; H.ph = "rev";
@@ -1642,6 +1665,34 @@ function accusers(st, ps, by, acc) {
   ];
 }
 
+function winLose(st, ps, res) {
+  const pts = res.pts || {};
+  const chip = id => h("span", { class: "wchip2" }, avatar(avOf(ps, id), true), h("span", null, nameOf(st, id)), (pts[id] | 0) > 0 ? h("b", { class: "pts" }, "+" + (pts[id] | 0)) : null);
+  const col = (title, ids, cls) => h("div", { class: "wl " + cls }, h("h3", null, title), ids.length ? h("div", { class: "twho" }, ...ids.map(chip)) : h("p", { class: "small muted", style: "margin:0" }, "Personne"));
+  return h("div", { class: "panel winlose" }, col("🏆 Gagnants", Array.isArray(res.win) ? res.win : [], "w"), col("💀 Perdants", Array.isArray(res.lose) ? res.lose : [], "l"));
+}
+function ranking(st, map, title) {
+  const r = st[map] || {}, ids = Object.keys(r);
+  if (!ids.length) return null;
+  ids.sort((a, b) => (r[b][0] - r[a][0]) || (r[b][1] - r[a][1]) || (r[a][2] - r[b][2]));
+  let rank = 0, prev = null;
+  const rows = ids.map((id, k) => {
+    const key = r[id][0] + "|" + r[id][1]; if (key !== prev) { rank = k + 1; prev = key; }
+    const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "#" + rank;
+    const lastKey = r[ids[ids.length - 1]][0] + "|" + r[ids[ids.length - 1]][1], firstKey = r[ids[0]][0] + "|" + r[ids[0]][1];
+    return h("div", { class: "rk-row" + (key === lastKey && lastKey !== firstKey ? " last" : "") },
+      h("span", { class: "rk-pos" }, medal), h("span", { class: "rk-name" }, nameOf(st, id)),
+      h("span", { class: "rk-wl" }, r[id][1] + " V · " + r[id][2] + " D"), h("b", { class: "rk-pts" }, r[id][0] + " pt" + (r[id][0] > 1 ? "s" : "")));
+  });
+  return h("div", { class: "panel rk" }, h("div", { class: "panel-title" }, title), ...rows,
+    (() => {
+      const k = id => r[id][0] + "|" + r[id][1], lastK = k(ids[ids.length - 1]);
+      if (ids.length < 2 || k(ids[0]) === lastK) return null;
+      const lasts = ids.filter(id => k(id) === lastK);
+      return h("p", { class: "small muted", style: "text-align:center;margin:8px 0 0" }, "💀 Lanterne rouge : " + lasts.map(id => nameOf(st, id)).join(", "));
+    })());
+}
+
 function viewReveal(st, ps) {
   const [m] = st.plan[st.i], res = st.res || {}, cur = st.cur || {};
   const out = [progress(st)];
@@ -1676,11 +1727,13 @@ function viewReveal(st, ps) {
       h("div", null, h("div", { class: "t" }, "L'imposteur était"), h("div", { class: "n" }, nameOf(st, res.imp)),
         h("div", { class: "small muted" }, "Sa question : " + clean(st.q && st.q.alt, 200)),
         h("div", { class: "vtag" }, res.caught ? "Démasqué !" : "Il s'en sort !"))));
+    out.push(winLose(st, ps, res));
     out.push(voteBars(res.v || {}, st, ps, { tag: id => (id in ans ? " · " + ans[id] : "") }));
   } else if (m === "x") {
     out.push(h("div", { class: "award big-verdict " + (res.ok ? "bad" : "good") }, avatar(avOf(ps, res.acc)),
       h("div", null, h("div", { class: "t" }, "Le jury a tranché"), h("div", { class: "n" }, res.ok ? "COUPABLE 🔨" : "NON COUPABLE 🕊️"),
         h("div", { class: "small muted" }, (res.gc | 0) + " coupable · " + (res.nc | 0) + " non coupable"))));
+    out.push(winLose(st, ps, res));
     out.push(...accusers(st, ps, cur.by, res.acc));
   }
 
@@ -1783,6 +1836,7 @@ function viewEnd(st) {
     awards.length ? h("div", { class: "stack" }, ...awards.map(([t, ids, sub]) => h("div", { class: "award" }, avatar(avOf(ps, ids[0])),
       h("div", null, h("div", { class: "t" }, t), h("div", { class: "n" }, ids.map(id => nameOf(st, id)).join(", ")), h("div", { class: "small muted" }, sub)))))
       : h("p", { class: "note" }, "Pas assez de votes pour décerner des titres.")];
+  out.push(ranking(st, "ri", "Classement · L'imposteur"), ranking(st, "rx", "Classement · Le procès"));
   out.push(...recap(st));
   if (ranked.length > 1) out.push(h("div", { class: "panel" }, h("div", { class: "panel-title" }, "Votes reçus au total"),
     h("div", { class: "bars" }, ...ranked.map(id => h("div", { class: "bar-top" }, h("span", null, nameOf(st, id)), h("b", null, String(votes(id))))))));

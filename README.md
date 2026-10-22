@@ -26,10 +26,13 @@ Chacun joue sur son téléphone, sans compte et sans installation.
 
 À la fin : titres (Cible n°1, Intouchable, Ange, Démon, Meilleur détective…) et récap complet par catégorie.
 
+L'imposteur et Le procès ont leur propre **classement à points** (gagnants / perdants à chaque tour, podium et lanterne rouge en fin de partie).
+
 ## Fonctionnalités
 
 - Questions modifiables dans **Gérer les questions** (sauvegarde / import possibles)
 - Les questions déjà jouées sont mises de côté pour les parties suivantes
+- Deux versions : 😇 Soft et 🔥 Hardcore (18+), choisies par l'hôte dans le lobby
 - Musique de fond générée en direct (100 % originale), volume réglable par joueur
 - Un joueur qui recharge la page retrouve sa place
 
