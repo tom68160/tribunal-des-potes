@@ -192,6 +192,8 @@ body[data-ver="hard"]{--field:#3d0f2b;--field-2:#6e1734}
 .rk-wl{font-size:13px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
 .rk-pts{font-family:var(--f-display);font-size:16px;color:var(--gold);font-variant-numeric:tabular-nums}
 @media (max-width:420px){.winlose{grid-template-columns:1fr}}
+/* fond d'écran */
+.backdrop{position:fixed;inset:0;width:100%;height:100%;z-index:-1;image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none}
 /* règles */
 .name-row{display:flex;align-items:center;gap:8px;min-width:0}
 .info{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--panel-line);background:transparent;color:var(--panel-line);font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:13px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
@@ -1319,6 +1321,7 @@ function render(force) {
   lastMainKey = key;
   document.body.dataset.ver = ((g && st && st.ver === "hard") || (!g && admin && VER === "hard")) ? "hard" : "soft";
   if (typeof Music !== "undefined") Music.setMood(document.body.dataset.ver);
+  if (window.setBackdropMood) window.setBackdropMood(document.body.dataset.ver);
   app.replaceChildren(...[].concat(view()).filter(x => x != null && x !== false));
 }
 
@@ -1845,6 +1848,79 @@ function viewEnd(st) {
   out.push(h("button", { class: "btn ghost", onclick: leave }, "Quitter"));
   return out;
 }
+
+/* ---------- fond d'écran animé (pixel art : ciel étoilé + tribunal) ---------- */
+(function backdrop() {
+  const cv = document.createElement("canvas"); cv.className = "backdrop"; cv.setAttribute("aria-hidden", "true");
+  document.body.prepend(cv);
+  const ctx = cv.getContext("2d"); if (!ctx) return;
+  const S = 4;
+  const PAL = {
+    soft: { top: [40, 52, 150], bot: [104, 120, 224], build: "rgba(22,38,90,0.62)", glow: "rgba(246,201,76,0.55)", star: "#eef1ff", cloud: "rgba(205,214,255,0.20)", moon: "#f6f0cf", crater: "rgba(180,170,130,0.45)" },
+    hard: { top: [20, 4, 16], bot: [118, 22, 50], build: "rgba(14,2,10,0.66)", glow: "rgba(255,90,106,0.6)", star: "#ffc7d4", cloud: "rgba(255,120,150,0.13)", moon: "#ff5a6a", crater: "rgba(150,20,40,0.5)" }
+  };
+  let W = 0, Hh = 0, stars = [], clouds = [], mood = "soft";
+  const t0 = performance.now();
+  function rnd(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+  function setup() {
+    W = Math.max(60, Math.ceil(innerWidth / S)); Hh = Math.max(100, Math.ceil(innerHeight / S));
+    cv.width = W; cv.height = Hh;
+    const r = rnd(4242);
+    stars = Array.from({ length: Math.round(W * Hh / 80) }, () => ({ x: Math.floor(r() * W), y: Math.floor(r() * Hh * 0.72), p: r() * 6.283, s: r() < 0.12 ? 2 : 1, sp: 0.5 + r() * 1.2 }));
+    clouds = Array.from({ length: 5 }, () => ({ x: r() * W, y: 10 + r() * Hh * 0.4, w: 18 + Math.floor(r() * 28), v: 0.5 + r() * 1.1 }));
+    draw();
+  }
+  function sky(P) {
+    const bands = 14;
+    for (let i = 0; i < bands; i++) {
+      const k = i / (bands - 1), c = P.top.map((a, j) => Math.round(a + (P.bot[j] - a) * k));
+      ctx.fillStyle = "rgb(" + c.join(",") + ")";
+      ctx.fillRect(0, Math.floor(Hh * i / bands), W, Math.ceil(Hh / bands) + 1);
+    }
+  }
+  function moon(P) {
+    const r = Math.max(4, Math.floor(Math.min(W, Hh) * 0.045)), cx = 4 + r + 2, cy = 4 + r;
+    ctx.fillStyle = P.moon;
+    for (let y = -r; y <= r; y++) { const half = Math.floor(Math.sqrt(r * r - y * y)); ctx.fillRect(cx - half, cy + y, half * 2 + 1, 1); }
+    ctx.fillStyle = P.crater;
+    ctx.fillRect(cx - Math.floor(r / 3), cy - Math.floor(r / 3), 2, 2); ctx.fillRect(cx + Math.floor(r / 4), cy + Math.floor(r / 5), 3, 2); ctx.fillRect(cx - Math.floor(r / 6), cy + Math.floor(r / 2), 2, 1);
+  }
+  function court(P, t) {
+    const cw = Math.min(Math.floor(W * 0.86), 150), x0 = Math.floor((W - cw) / 2), base = Hh - 7;
+    const colH = Math.max(22, Math.floor(Hh * 0.16)), top = base - 9 - colH, ph = Math.max(8, Math.floor(cw * 0.17));
+    ctx.fillStyle = P.build;
+    ctx.fillRect(0, base + 3, W, Hh - base);                                  // sol
+    for (let s = 0; s < 3; s++) ctx.fillRect(x0 - 8 + s * 3, base - s * 3, cw + 16 - s * 6, 3); // marches
+    const n = 6, gap = cw / n;
+    for (let i = 0; i < n; i++) { const cx = Math.floor(x0 + gap * i + gap * 0.25), w = Math.max(3, Math.floor(gap * 0.5)); ctx.fillRect(cx, top, w, colH); ctx.fillRect(cx - 1, top, w + 2, 2); ctx.fillRect(cx - 1, top + colH - 2, w + 2, 2); }
+    ctx.fillRect(x0 - 5, top - 5, cw + 10, 5);                                // entablement
+    for (let y = 0; y < ph; y++) { const half = Math.floor((cw / 2 + 6) * (y / ph)); ctx.fillRect(Math.floor(W / 2) - half, top - 5 - ph + y, half * 2, 1); } // fronton
+    // balance de la justice dans le fronton, qui oscille doucement
+    const bx = Math.floor(W / 2), by = top - 5 - Math.floor(ph * 0.55), tilt = Math.round(Math.sin(t * 0.9) * 1.4);
+    ctx.fillStyle = P.glow;
+    ctx.fillRect(bx, by - 2, 1, 5); ctx.fillRect(bx - 6, by - 2 + tilt, 6, 1); ctx.fillRect(bx + 1, by - 2 - tilt, 6, 1);
+    ctx.fillRect(bx - 7, by + tilt, 3, 1); ctx.fillRect(bx + 5, by - tilt, 3, 1);
+    // fenêtres éclairées entre les colonnes
+    for (let i = 0; i < n - 1; i++) { const fx = Math.floor(x0 + gap * (i + 1) - 1); if ((i + Math.floor(t / 3)) % 3 !== 0) ctx.fillRect(fx, top + Math.floor(colH * 0.3), 2, 3); }
+  }
+  function draw() {
+    const P = PAL[mood], t = (performance.now() - t0) / 1000;
+    sky(P); moon(P);
+    ctx.fillStyle = P.cloud;
+    clouds.forEach(c => { const x = Math.floor(((c.x + t * c.v) % (W + c.w)) - c.w), y = Math.floor(c.y); ctx.fillRect(x, y, c.w, 3); ctx.fillRect(x + 4, y - 2, c.w - 10, 2); ctx.fillRect(x + 8, y - 3, Math.max(2, c.w - 20), 1); });
+    ctx.fillStyle = P.star;
+    stars.forEach(s => { ctx.globalAlpha = 0.25 + 0.75 * Math.abs(Math.sin(t * s.sp + s.p)); ctx.fillRect(s.x, s.y, s.s, s.s); });
+    ctx.globalAlpha = 1;
+    court(P, t);
+  }
+  let last = 0;
+  function loop(now) { if (now - last > 150) { last = now; draw(); } requestAnimationFrame(loop); }
+  addEventListener("resize", setup);
+  setup();
+  let still = false; try { still = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  if (!still) requestAnimationFrame(loop);
+  window.setBackdropMood = m => { m = m === "hard" ? "hard" : "soft"; if (m !== mood) { mood = m; draw(); } };
+})();
 
 /* ---------- musique de fond (générée en direct, 100 % originale, libre de droits) ---------- */
 const Music = (() => {
