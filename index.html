@@ -217,6 +217,41 @@ body.splashing #app,body.splashing .music-btn,body.splashing .music-panel{visibi
 @keyframes blink{50%{filter:brightness(1.25)}}
 .splash-foot{margin:6px 0 0;font-size:13px;color:var(--ink-dim)}
 @media (prefers-reduced-motion:reduce){.gavel .hammer,.gavel .block,.ordre,.splash-title,.splash-go{animation:none}.gavel .hammer{transform:none}.ordre{opacity:1}.splash{transition:none}}
+/* boîte de jeu (intro) */
+.intro{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;cursor:pointer;overflow:hidden;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 3px,transparent 3px 41px),repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 9px),linear-gradient(180deg,#3a2414,#5b3820 55%,#2e1b0e);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(20px + env(safe-area-inset-top,0px)) calc(20px + env(safe-area-inset-bottom,0px));transition:opacity .5s ease .4s}
+.table-light{position:absolute;inset:0;background:radial-gradient(ellipse 60% 45% at 50% 42%,rgba(255,226,170,.28),transparent 70%),radial-gradient(ellipse at 50% 50%,transparent 45%,rgba(0,0,0,.55));pointer-events:none}
+.box-stage{position:relative;perspective:900px;--w:min(70vw,290px);--h:calc(var(--w) * 1.32);--d:56px;width:var(--w);height:var(--h);animation:boxin .9s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes boxin{from{transform:translateY(40px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.box3d{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(12deg) rotateY(-24deg) rotateZ(1deg);transition:transform .8s cubic-bezier(.5,0,.3,1)}
+.face{position:absolute;backface-visibility:hidden}
+.front{inset:0;transform:translateZ(calc(var(--d) / 2));background:radial-gradient(ellipse at 50% 30%,#3b52c8,#1d3266 70%);border:4px solid #f6c94c;box-shadow:inset 0 0 0 3px #1d3266,inset 0 0 0 5px rgba(246,201,76,.5);
+  display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 12px 12px;text-align:center;overflow:hidden;color:var(--ink)}
+.front::before{content:"";position:absolute;inset:0;background:radial-gradient(1px 1px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 78% 12%,#fff,transparent),radial-gradient(1.5px 1.5px at 88% 40%,#fff,transparent),radial-gradient(1px 1px at 22% 46%,#fff,transparent),radial-gradient(1px 1px at 60% 8%,#fff,transparent);opacity:.8;pointer-events:none}
+.front::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.18),transparent 35%,transparent 70%,rgba(255,255,255,.06));pointer-events:none}
+.side{top:0;left:100%;width:var(--d);height:100%;transform-origin:left center;transform:rotateY(90deg) translateX(calc(var(--d) / -2)) translateZ(0);background:linear-gradient(90deg,#16245a,#22377a);border:3px solid #c9a23a;display:grid;place-items:center}
+.side span{writing-mode:vertical-rl;font-family:var(--f-logo);font-size:13px;letter-spacing:.12em;color:#f6c94c}
+.top{left:0;top:0;width:100%;height:var(--d);transform-origin:center top;transform:rotateX(90deg) translateY(calc(var(--d) / -2));background:linear-gradient(180deg,#22377a,#2d48a0);border:3px solid #c9a23a}
+.cover-band{font-family:var(--f-display);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;background:#f6c94c;color:#11264f;padding:2px 10px;margin-top:2px}
+.cover-art{width:54%;margin-top:6px;margin-right:12%}
+.cover-gavel{width:100%;display:block;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.35))}
+.cover-title{font-family:var(--f-logo);font-weight:700;line-height:.95;display:flex;flex-direction:column;text-shadow:3px 3px 0 #0e1a40}
+.cover-title span:first-child{font-size:calc(var(--w) * .15)}
+.cover-title span:last-child{font-size:calc(var(--w) * .105);color:#f6c94c}
+.cover-tag{font-family:var(--f-display);font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.9}
+.cover-faces{display:flex;gap:4px;margin-top:2px}
+.cover-faces .av{width:26px;height:26px;font-size:15px}
+.cover-badges{margin-top:auto;display:flex;flex-wrap:wrap;justify-content:center;gap:4px}
+.cover-badges span{font-size:10px;background:rgba(14,26,64,.85);border:1px solid rgba(246,201,76,.6);padding:2px 6px;font-family:var(--f-display);font-weight:600}
+.cover-sticker{position:absolute;top:30px;right:-8px;width:66px;height:66px;border-radius:50%;background:#e8484f;color:#fff;font-family:var(--f-display);font-weight:700;font-size:8.5px;line-height:1.1;text-transform:uppercase;display:grid;place-content:center;text-align:center;transform:rotate(14deg);box-shadow:2px 3px 0 rgba(0,0,0,.35);border:2px dashed rgba(255,255,255,.6)}
+.cover-sticker b{font-size:16px;line-height:1}
+.box-shadow{position:absolute;left:6%;right:-8%;bottom:-26px;height:34px;background:radial-gradient(ellipse at center,rgba(0,0,0,.55),transparent 70%);transform:translateX(10px);z-index:-1}
+.intro-go{position:relative;font-size:18px;animation:blink 1.2s steps(2,start) infinite}
+.intro.opening{opacity:0}
+.intro.opening .box3d{transform:translateY(-130%) rotateX(55deg) rotateY(-10deg) rotateZ(-6deg)}
+.intro.opening .intro-go{visibility:hidden}
+@media (prefers-reduced-motion:reduce){.box-stage,.intro-go{animation:none}.box3d{transition:none}.intro{transition:none}}
 /* règles */
 .name-row{display:flex;align-items:center;gap:8px;min-width:0}
 .info{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--panel-line);background:transparent;color:var(--panel-line);font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:13px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
@@ -2078,6 +2113,43 @@ const Music = (() => {
   };
   el.addEventListener("click", enter);
   el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " " || e.key === "Escape") { e.preventDefault(); enter(); } });
+})();
+
+/* ---------- boîte du jeu de société (avant l'écran d'accueil) ---------- */
+(function boxIntro() {
+  const gavel = '<svg viewBox="0 0 40 30" shape-rendering="crispEdges" aria-hidden="true" class="cover-gavel">'
+    + '<rect x="0" y="20" width="22" height="5" fill="#5a3418"/><rect x="0" y="20" width="22" height="1" fill="#9a6232"/>'
+    + '<g transform="rotate(18 34 27)"><rect x="20" y="13" width="3" height="3" fill="#8b4a2b"/><rect x="23" y="16" width="3" height="3" fill="#8b4a2b"/><rect x="26" y="19" width="3" height="3" fill="#8b4a2b"/><rect x="29" y="22" width="3" height="3" fill="#8b4a2b"/><rect x="32" y="25" width="3" height="3" fill="#6e3820"/>'
+    + '<rect x="2" y="10" width="18" height="10" fill="#8b4a2b"/><rect x="2" y="10" width="18" height="2" fill="#b8693e"/><rect x="5" y="10" width="2" height="10" fill="#f6c94c"/><rect x="15" y="10" width="2" height="10" fill="#f6c94c"/></g></svg>';
+  const faces = [0, 3, 6, 9, 11].map(i => avatar(i, true));
+  const front = h("div", { class: "face front" },
+    h("div", { class: "cover-band" }, "Jeu de soirée"),
+    h("div", { class: "cover-art" }),
+    h("div", { class: "cover-title" }, h("span", null, "Tribunal"), h("span", null, "des Potes")),
+    h("div", { class: "cover-tag" }, "Le jeu qui juge tes potes"),
+    h("div", { class: "cover-faces" }, ...faces),
+    h("div", { class: "cover-badges" }, h("span", null, "👥 Dès 3 joueurs"), h("span", null, "⏱ 45 min"), h("span", null, "📱 Sur téléphone")),
+    h("div", { class: "cover-sticker" }, h("b", null, "🔥"), "Version", h("br"), "Hardcore", h("br"), "18+ incluse"));
+  front.querySelector(".cover-art").innerHTML = gavel;
+  const side = h("div", { class: "face side" }, h("span", null, "TRIBUNAL DES POTES"));
+  const top = h("div", { class: "face top" });
+  const lid = h("div", { class: "box3d" }, front, side, top);
+  const hint = h("button", { class: "btn green intro-go", type: "button" }, "Ouvrir la boîte");
+  const el = h("div", { class: "intro", role: "dialog", "aria-modal": "true", "aria-label": "Boîte du jeu Tribunal des Potes" },
+    h("div", { class: "table-light" }),
+    h("div", { class: "box-stage" }, lid, h("div", { class: "box-shadow" })),
+    hint);
+  document.body.append(el);
+  try { hint.focus({ preventScroll: true }); } catch (e) {}
+  let gone = false;
+  const open = () => {
+    if (gone) return; gone = true;
+    el.classList.add("opening");
+    const sp = document.querySelector(".splash .splash-go");
+    setTimeout(() => { el.remove(); if (sp) { try { sp.focus({ preventScroll: true }); } catch (e) {} } }, 900);
+  };
+  el.addEventListener("click", e => { e.stopPropagation(); open(); });
+  el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " " || e.key === "Escape") { e.preventDefault(); e.stopPropagation(); open(); } });
 })();
 
 render(true);
