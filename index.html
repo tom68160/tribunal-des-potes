@@ -194,6 +194,29 @@ body[data-ver="hard"]{--field:#3d0f2b;--field-2:#6e1734}
 @media (max-width:420px){.winlose{grid-template-columns:1fr}}
 /* fond d'écran */
 .backdrop{position:fixed;inset:0;width:100%;height:100%;z-index:-1;image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none}
+/* écran d'accueil */
+body.splashing #app,body.splashing .music-btn,body.splashing .music-panel{visibility:hidden}
+.splash{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 38%,rgba(17,26,70,0),rgba(8,12,36,.55));cursor:pointer;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(20px + env(safe-area-inset-top,0px)) calc(20px + env(safe-area-inset-bottom,0px));transition:opacity .4s ease, transform .4s ease}
+.splash.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.splash-inner{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;max-width:460px;width:100%}
+.gavel-wrap{width:min(50vw,210px);aspect-ratio:40/30;max-width:100%;overflow:visible}
+.gavel{width:100%;height:100%;image-rendering:pixelated;overflow:visible}
+.gavel .hammer{transform-box:view-box;transform-origin:34px 27px;animation:swing 2.4s infinite cubic-bezier(.5,0,.75,0)}
+.gavel .block{transform-box:view-box;transform-origin:11px 27px;animation:thud 2.4s infinite}
+@keyframes swing{0%,15%{transform:rotate(38deg)}40%{transform:rotate(-3deg)}44%{transform:rotate(1deg)}48%,100%{transform:rotate(0deg)}}
+@keyframes thud{0%,39%{transform:none}41%{transform:translateY(1px) scaleY(.85)}46%,100%{transform:none}}
+.ordre{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,6vw,28px);letter-spacing:.12em;color:var(--gold);text-shadow:3px 3px 0 #7a1a33;margin-top:-10px;animation:ordre 2.4s infinite;opacity:0}
+@keyframes ordre{0%,39%{opacity:0;transform:scale(.6)}43%{opacity:1;transform:scale(1.25) rotate(-4deg)}52%{transform:scale(1) rotate(-4deg)}75%{opacity:1}90%,100%{opacity:0}}
+.splash-title{font-family:var(--f-logo);font-weight:700;line-height:.95;display:flex;flex-direction:column;align-items:center;color:var(--ink);text-shadow:4px 4px 0 var(--panel),0 0 24px rgba(246,201,76,.25);animation:shake 2.4s infinite}
+.splash-title span:first-child{font-size:clamp(40px,13vw,72px)}
+.splash-title span:last-child{font-size:clamp(28px,9vw,50px);color:var(--gold)}
+@keyframes shake{0%,40%{transform:none}42%{transform:translate(-3px,2px)}44%{transform:translate(3px,-2px)}46%{transform:translate(-1px,1px)}48%,100%{transform:none}}
+.splash-tag{margin:0;font-family:var(--f-display);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.splash-go{margin-top:10px;font-size:20px;animation:blink 1.2s steps(2,start) infinite}
+@keyframes blink{50%{filter:brightness(1.25)}}
+.splash-foot{margin:6px 0 0;font-size:13px;color:var(--ink-dim)}
+@media (prefers-reduced-motion:reduce){.gavel .hammer,.gavel .block,.ordre,.splash-title,.splash-go{animation:none}.gavel .hammer{transform:none}.ordre{opacity:1}.splash{transition:none}}
 /* règles */
 .name-row{display:flex;align-items:center;gap:8px;min-width:0}
 .info{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--panel-line);background:transparent;color:var(--panel-line);font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:13px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
@@ -2021,6 +2044,40 @@ const Music = (() => {
   sync();
   const kick = () => { if (!Music.muted) Music.start(); };
   ["pointerdown", "keydown", "touchend"].forEach(ev => document.addEventListener(ev, kick, { once: true, passive: true }));
+})();
+
+/* ---------- écran d'accueil (avant le menu) ---------- */
+(function splash() {
+  const svg = '<svg class="gavel" viewBox="0 0 40 30" shape-rendering="crispEdges" aria-hidden="true">'
+    + '<g class="block"><rect x="0" y="20" width="22" height="5" fill="#5a3418"/><rect x="0" y="20" width="22" height="1" fill="#9a6232"/><rect x="2" y="25" width="18" height="2" fill="#3e230f"/></g>'
+    + '<g class="hammer">'
+    +   '<rect x="20" y="13" width="3" height="3" fill="#8b4a2b"/><rect x="23" y="16" width="3" height="3" fill="#8b4a2b"/><rect x="26" y="19" width="3" height="3" fill="#8b4a2b"/><rect x="29" y="22" width="3" height="3" fill="#8b4a2b"/><rect x="32" y="25" width="3" height="3" fill="#6e3820"/>'
+    +   '<rect x="2" y="10" width="18" height="10" fill="#8b4a2b"/><rect x="2" y="10" width="18" height="2" fill="#b8693e"/><rect x="2" y="18" width="18" height="2" fill="#6e3820"/>'
+    +   '<rect x="5" y="10" width="2" height="10" fill="#f6c94c"/><rect x="15" y="10" width="2" height="10" fill="#f6c94c"/>'
+    + '</g></svg>';
+  const go = h("button", { class: "btn green splash-go", type: "button" }, "▶ Appuie pour jouer");
+  const el = h("div", { class: "splash", role: "dialog", "aria-modal": "true", "aria-label": "Tribunal des Potes" },
+    h("div", { class: "splash-inner" },
+      h("div", { class: "gavel-wrap" }),
+      h("div", { class: "ordre", "aria-hidden": "true" }, "ORDRE !"),
+      h("div", { class: "splash-title" }, h("span", null, "Tribunal"), h("span", null, "des Potes")),
+      h("p", { class: "splash-tag" }, "Le jeu qui juge tes potes"),
+      go,
+      h("p", { class: "splash-foot" }, "😇 Soft · 🔥 Hardcore · 9 mini-jeux · 🔊 avec le son")));
+  el.querySelector(".gavel-wrap").innerHTML = svg;
+  document.body.append(el);
+  document.body.classList.add("splashing");
+  try { go.focus({ preventScroll: true }); } catch (e) {}
+  let gone = false;
+  const enter = () => {
+    if (gone) return; gone = true;
+    if (!Music.muted) Music.start();
+    el.classList.add("out");
+    document.body.classList.remove("splashing");
+    setTimeout(() => el.remove(), 450);
+  };
+  el.addEventListener("click", enter);
+  el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " " || e.key === "Escape") { e.preventDefault(); enter(); } });
 })();
 
 render(true);

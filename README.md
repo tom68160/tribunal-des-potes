@@ -35,6 +35,7 @@ L'imposteur et Le procès ont leur propre **classement à points** (gagnants / p
 - Deux versions : 😇 Soft et 🔥 Hardcore (18+), choisies par l'hôte dans le lobby
 - Musique de fond générée en direct (100 % originale), volume réglable par joueur
 - Fond d'écran animé en pixel art (ciel étoilé + tribunal), aux couleurs de la version choisie
+- Écran d'accueil avec marteau de juge animé (« ORDRE ! »)
 - Un joueur qui recharge la page retrouve sa place
 
 ## Héberger
