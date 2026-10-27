@@ -1,5 +1,7 @@
 # Tribunal des Potes 🎮
 
+![Tribunal des Potes](cover.png)
+
 Un jeu de soirée multijoueur où l'on juge ses potes : votes, tier lists, anecdotes, imposteur, procès…
 Chacun joue sur son téléphone, sans compte et sans installation.
 
