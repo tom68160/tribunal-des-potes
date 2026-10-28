@@ -1405,7 +1405,7 @@ function advance() {
   }
   if (m === "x" && s === 0) {
     const v = {}, by = {};
-    for (const p of ps) if (typeof p.ans.v === "string") { v[p.ans.v] = (v[p.ans.v] || 0) + 1; (by[p.ans.v] = by[p.ans.v] || []).push(p.id); bump("tot", p.ans.v); }
+    for (const p of ps) if (typeof p.ans.v === "string" && p.ans.v !== p.id) { v[p.ans.v] = (v[p.ans.v] || 0) + 1; (by[p.ans.v] = by[p.ans.v] || []).push(p.id); bump("tot", p.ans.v); }
     let ids = Object.keys(v); if (!ids.length) ids = players().map(p => p.id);
     const max = Math.max(0, ...ids.map(id => v[id] | 0)), top = ids.filter(id => (v[id] | 0) === max);
     H.cur = { acc: top[Math.floor(Math.random() * top.length)] || null, n: max, by };
@@ -1806,7 +1806,9 @@ function viewQuestion(st, ps, done) {
   } else if (done) {
     out.push(h("p", { class: "note" }, "Réponse envoyée. En attente des autres…"));
     out.push(h("div", { class: "waiting" }, ...eligible(st, ps).map(p => h("div", { class: "wchip" + (answered(p, st) ? " done" : "") }, avatar(p.av, true), h("span", null, p.name), answered(p, st) ? h("span", { class: "tick" }, "OK") : null))));
-  } else if (m === "u" || m === "d" || (m === "x" && s === 0)) {
+  } else if (m === "x" && s === 0) {
+    out.push(...pickPlayers(ps, 1, { noSelf: true, label: "Accuser" }));
+  } else if (m === "u" || m === "d") {
     out.push(...pickPlayers(ps, m === "d" ? 2 : 1));
   } else if (m === "i" && s === 1) {
     const ans = cur.ans || {};
