@@ -849,6 +849,109 @@ const HC2 = {
 };
 for (const k in HC2) DEFAULT_HC[k] = DEFAULT_HC[k].concat(HC2[k]);
 
+/* Hardcore : lot n°3 (fantasmes) */
+const HC3 = {
+  u: [
+    "Qui a le fantasme le plus inavouable du groupe ?",
+    "Qui est le plus susceptible d'adorer les jeux de rôle au lit ?",
+    "Qui est le plus susceptible de fantasmer sur un uniforme ?",
+    "Qui est le plus susceptible de vouloir être dominé ?",
+    "Qui est le plus susceptible de vouloir dominer ?",
+    "Qui est le plus susceptible d'avoir réalisé un fantasme en vacances ?",
+    "Qui est le plus susceptible d'avoir fantasmé sur un prof ou un patron ?",
+    "Qui est le plus susceptible de sortir un bandeau pour les yeux ?",
+    "Qui est le plus susceptible d'aimer être regardé ?",
+    "Qui est le plus susceptible d'avoir fantasmé sur la copine ou le copain d'un pote ?",
+    "Qui est le plus susceptible d'avoir un dossier secret sur son téléphone ?",
+    "Qui serait le plus partant pour une soirée libertine ?"
+  ],
+  d: [
+    "Quels deux potes ont les fantasmes les plus compatibles ?",
+    "Quels deux potes oseraient réaliser un fantasme ensemble ?",
+    "Qui sont les deux plus soumis du groupe, à ton avis ?",
+    "Qui sont les deux plus dominants du groupe ?",
+    "Quels deux potes iraient ensemble dans un sex-shop sans aucune gêne ?",
+    "Quels deux potes se racontent déjà leurs fantasmes ?"
+  ],
+  g: [
+    { q: "Ton pote te confie un fantasme qui te choque.", a: ["Je respecte", "Je le répète au groupe"] },
+    { q: "Ton pote a oublié un de ses jouets chez toi.", a: ["Je lui rends discrètement", "Je le pose sur la table au prochain apéro"] },
+    { q: "L'historique coquin de ton pote est resté ouvert sur son ordi.", a: ["Je ferme sans regarder", "Je fais défiler"] },
+    { q: "Ton pote te demande de lui acheter un truc au sex-shop.", a: ["Je rends service", "J'envoie une photo de moi en caisse dans le groupe"] },
+    { q: "Ton pote a proposé un fantasme à son copain et s'est pris un vent.", a: ["Je le rassure", "Je me fous de lui"] },
+    { q: "Ton pote veut tester une appli coquine et te demande de l'aider pour son profil.", a: ["Je l'aide pour de vrai", "J'écris une bio ridicule"] }
+  ],
+  p: [
+    { a: ["Réaliser ton plus grand fantasme mais tout le groupe le sait", "Ne jamais le réaliser"] },
+    { a: ["Avoir les yeux bandés", "Avoir les mains attachées"] },
+    { a: ["Dominer", "Être dominé"] },
+    { a: ["Un jeu de rôle infirmière", "Un jeu de rôle policier"] },
+    { a: ["Être regardé", "Regarder"] },
+    { a: ["Une soirée libertine", "Un plan à trois"] },
+    { a: ["Que ton ou ta partenaire lise ta liste de fantasmes", "Que tes potes la lisent"] },
+    { a: ["Le faire dans un ascenseur", "Le faire dans une cabine d'essayage"] },
+    { a: ["Des menottes", "Des plumes"] },
+    { a: ["Tout essayer au moins une fois", "Rester classique toute ta vie"] }
+  ],
+  n: [
+    "Je n'ai jamais fait de jeu de rôle au lit",
+    "Je n'ai jamais utilisé de menottes",
+    "Je n'ai jamais eu les yeux bandés pendant un moment coquin",
+    "Je n'ai jamais réalisé un de mes fantasmes",
+    "Je n'ai jamais rien acheté dans un sex-shop",
+    "Je n'ai jamais fantasmé sur un prof ou un patron",
+    "Je n'ai jamais pensé à quelqu'un d'autre pendant un moment intime",
+    "Je n'ai jamais fait de strip-tease pour quelqu'un",
+    "Je n'ai jamais mis les pieds dans un club libertin",
+    "Je n'ai jamais filmé un moment intime",
+    "Je n'ai jamais dominé quelqu'un au lit",
+    "Je n'ai jamais été dominé au lit",
+    "Je n'ai jamais fait l'amour en pleine nature",
+    "Je n'ai jamais fantasmé sur deux personnes en même temps",
+    "Je n'ai jamais porté de tenue coquine",
+    "Je n'ai jamais parlé de mes fantasmes à quelqu'un de ce groupe"
+  ],
+  a: [
+    "Le fantasme que tu n'as jamais osé proposer",
+    "Le fantasme que tu as réalisé… et qui t'a déçu",
+    "Le fantasme le plus bizarre qu'on t'ait avoué",
+    "L'endroit où tu rêves de le faire",
+    "La tenue qui te rend complètement fou ou folle",
+    "Ton moment le plus chaud en vacances",
+    "La proposition coquine la plus gênante que tu aies reçue",
+    "Le rêve érotique le plus gênant que tu aies fait"
+  ],
+  t: [
+    { q: "Les fantasmes classiques", items: ["Jeu de rôle", "Yeux bandés", "Menottes", "Lieu public", "Plan à trois", "Être regardé", "Tenue sexy"] },
+    { q: "Les tenues qui font craquer", items: ["Uniforme", "Lingerie", "Costume", "Cuir", "Tenue de sport", "Pyjama"] },
+    { q: "Les lieux de fantasme", items: ["Bureau", "Plage la nuit", "Jacuzzi", "Train de nuit", "Hôtel de luxe", "Forêt"] },
+    { q: "Classe tes potes : qui a les fantasmes les plus fous ?", items: null },
+    { q: "Classe tes potes : qui est le plus dominant ?", items: null },
+    { q: "Classe tes potes : qui serait le plus à l'aise dans un sex-shop ?", items: null }
+  ],
+  i: [
+    { q: "Note ton côté aventurier en voyage sur 10", f: "Note ton côté aventurier au lit sur 10" },
+    { q: "Combien de films tu regardes par mois ?", f: "Combien de vidéos coquines tu regardes par semaine ?" },
+    { q: "Combien de jeux de société tu as chez toi ?", f: "Combien de fantasmes tu as déjà réalisés ?" },
+    { q: "Note ta souplesse sur 10", f: "Note ton envie de tester un plan à trois sur 10" },
+    { q: "Combien de tenues de soirée tu as ?", f: "Combien de tenues coquines tu as ?" },
+    { q: "Combien de fois tu as rêvé que tu volais ?", f: "Combien de rêves érotiques tu as faits ce mois-ci ?" },
+    { q: "Note ta timidité sur 10", f: "Note ta timidité au lit sur 10" },
+    { q: "Combien de pays tu veux encore visiter ?", f: "Combien de fantasmes tu veux encore réaliser ?" }
+  ],
+  x: [
+    "Avoir un fantasme sur quelqu'un de ce groupe",
+    "Cacher ses jouets dans sa table de nuit",
+    "Regarder des vidéos coquines en cachette au boulot",
+    "Avoir déjà proposé un plan à trois",
+    "Raconter ses fantasmes à tout le monde en soirée",
+    "Avoir un uniforme caché au fond du placard",
+    "Réaliser ses fantasmes et ne jamais l'avouer",
+    "Avoir fantasmé sur l'ex d'un pote"
+  ]
+};
+for (const k in HC3) DEFAULT_HC[k] = DEFAULT_HC[k].concat(HC3[k]);
+
 const MODES = [
   { k: "u", label: "Une seule réponse", hint: "Vote pour un joueur", def: 3 },
   { k: "d", label: "Deux réponses", hint: "Vote pour deux joueurs", def: 2 },
@@ -998,6 +1101,19 @@ function defaultsFor() { return VER === "hard" ? DEFAULT_HC : DEFAULT_BANK; }
   for (const m of MODES) { const before = BANKS.hard[m.k].length; BANKS.hard[m.k] = BANKS.hard[m.k].filter(q => !bad(q)); n += before - BANKS.hard[m.k].length; }
   if (n && store.get(HC_KEY)) store.set(HC_KEY, JSON.stringify(BANKS.hard));
   store.set("tribunal-hc-ver3", "1");
+})();
+(function addHC3() {
+  if (store.get("tribunal-hc-ver4") === "1") return;
+  if (store.get(HC_KEY)) {
+    const add = sanitizeBank(Object.assign({}, DEFAULT_HC, HC3)); let n = 0;
+    for (const m of MODES) {
+      if (!HC3[m.k]) continue;
+      const have = new Set(BANKS.hard[m.k].map(q => bankKey(m.k, q)));
+      add[m.k].forEach(q => { if (!have.has(bankKey(m.k, q))) { BANKS.hard[m.k].push(q); n++; } });
+    }
+    if (n) store.set(HC_KEY, JSON.stringify(BANKS.hard));
+  }
+  store.set("tribunal-hc-ver4", "1");
 })();
 if (store.get("tribunal-ver") === "hard") useVer("hard");
 function switchVer(v) {
