@@ -21,14 +21,14 @@ Chacun joue sur son téléphone, sans compte et sans installation.
 | Test de gentillesse | Une réaction gentille ou pas gentille, à la vue de tous |
 | Tu préfères | Deux options, on choisit son camp |
 | Je n'ai jamais | « Jamais » ou « Déjà fait » |
-| Thèmes anecdotes | Anecdotes anonymes, on devine l'auteur |
+| Thèmes anecdotes | Anecdotes anonymes : chacun devine l'auteur, +1 point par bonne réponse |
 | Les tier list | Classement de S à D, on voit qui a voté quoi |
 | L'imposteur | Un joueur a reçu une autre question : démasquez-le |
 | Le procès | Le groupe désigne un accusé, qui se défend 30 s avant le verdict |
 
 À la fin : titres (Cible n°1, Intouchable, Ange, Démon, Meilleur détective…) et récap complet par catégorie.
 
-L'imposteur et Le procès ont leur propre **classement à points** (gagnants / perdants à chaque tour, podium et lanterne rouge en fin de partie).
+Les anecdotes, L'imposteur et Le procès ont leur propre **classement à points** (gagnants / perdants à chaque tour, podium et lanterne rouge en fin de partie).
 
 ## Fonctionnalités
 

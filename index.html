@@ -258,6 +258,17 @@ body.splashing #app,body.splashing .music-btn,body.splashing .music-panel{visibi
 .intro.opening .box3d{transform:translateY(-130%) rotateX(55deg) rotateY(-10deg) rotateZ(-6deg)}
 .intro.opening .intro-go{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.box-stage,.intro-go{animation:none}.box3d{transition:none}.intro{transition:none}}
+/* anecdotes : devinettes */
+.guesses{display:flex;flex-direction:column;gap:10px;width:100%}
+.guess{background:var(--panel);border:3px solid var(--panel-line);padding:10px 12px;display:flex;flex-direction:column;gap:8px;position:relative}
+.guess p{margin:0;line-height:1.4;overflow-wrap:anywhere}
+.guess.own{border-style:dashed;opacity:.8}
+.gnum{position:absolute;top:-10px;left:10px;background:var(--gold);color:var(--on-light);font-family:var(--f-display);font-weight:700;font-size:12px;padding:1px 7px}
+.gpick{display:flex;align-items:center;gap:6px;background:#2a4486;border:2px solid #3f5aa3;color:var(--ink);padding:3px 8px 3px 3px;font-size:14px;cursor:pointer;font-family:var(--f-body)}
+.gpick.on{border-color:var(--gold);background:#3a4f93;box-shadow:0 0 0 2px var(--gold)}
+.gpick:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.anec .found{margin-top:6px;font-size:13px;color:#7ff0a8}
+.anec .found.none{color:var(--ink-dim)}
 /* règles */
 .name-row{display:flex;align-items:center;gap:8px;min-width:0}
 .info{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--panel-line);background:transparent;color:var(--panel-line);font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:13px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
@@ -964,7 +975,7 @@ const MODES = [
   { k: "x", label: "Le procès", hint: "Vote pour l'accusé", def: 2 }
 ];
 
-const RULES = {"u": "Une question du type « Qui est le plus susceptible de… ? ». Chacun vote pour un joueur, même soi-même. Le plus désigné prend la couronne, et on voit qui a voté pour qui.", "d": "Même principe, mais tu choisis deux joueurs. Les plus désignés sont révélés, avec le nom de ceux qui ont voté pour eux.", "g": "Une situation et deux réactions : une gentille, une pas gentille. Réponds honnêtement, tout le monde verra ton choix. C'est ce qui désigne l'Ange et le Démon du groupe.", "p": "Deux options, tu dois en choisir une. Les deux camps sont révélés. À la fin : le mouton (toujours avec la majorité) et le rebelle (toujours à contre-courant).", "n": "Une phrase « Je n'ai jamais… ». Réponds « Jamais » ou « Déjà fait », et les réponses sont montrées à tout le monde. Celui qui a le plus de « Déjà fait » est le plus déjanté.", "a": "Un thème personnel. Chacun écrit son anecdote en secret. Elles s'affichent mélangées, vous devinez à voix haute qui a écrit quoi, puis l'hôte peut révéler les auteurs.", "t": "Classe chaque élément, ou chaque pote, de S (le top) à D (le pire). La tier list affichée est la moyenne de tout le groupe.", "i": "Tout le monde répond à la même question par un nombre… sauf l'imposteur, qui a reçu une autre question sans le savoir. Les réponses s'affichent, vous débattez, puis vous votez pour le démasquer. Démasqué : +1 point pour chaque joueur qui a voté contre lui. Pas démasqué : +3 points pour l'imposteur.", "x": "Une accusation : « Qui est coupable de… ? ». Le groupe vote pour désigner l'accusé. Il a 30 secondes pour se défendre à voix haute, puis le jury vote coupable ou non coupable. Les jurés qui votent comme la majorité gagnent +1 point. Si l'accusé est acquitté, il gagne +3 points."};
+const RULES = {"u": "Une question du type « Qui est le plus susceptible de… ? ». Chacun vote pour un joueur, même soi-même. Le plus désigné prend la couronne, et on voit qui a voté pour qui.", "d": "Même principe, mais tu choisis deux joueurs. Les plus désignés sont révélés, avec le nom de ceux qui ont voté pour eux.", "g": "Une situation et deux réactions : une gentille, une pas gentille. Réponds honnêtement, tout le monde verra ton choix. C'est ce qui désigne l'Ange et le Démon du groupe.", "p": "Deux options, tu dois en choisir une. Les deux camps sont révélés. À la fin : le mouton (toujours avec la majorité) et le rebelle (toujours à contre-courant).", "n": "Une phrase « Je n'ai jamais… ». Réponds « Jamais » ou « Déjà fait », et les réponses sont montrées à tout le monde. Celui qui a le plus de « Déjà fait » est le plus déjanté.", "a": "Un thème personnel. Chacun écrit son anecdote en secret. Ensuite, chacun devine qui a écrit quoi : chaque bonne réponse rapporte 1 point, une mauvaise 0. Les auteurs sont révélés à la fin du tour.", "t": "Classe chaque élément, ou chaque pote, de S (le top) à D (le pire). La tier list affichée est la moyenne de tout le groupe.", "i": "Tout le monde répond à la même question par un nombre… sauf l'imposteur, qui a reçu une autre question sans le savoir. Les réponses s'affichent, vous débattez, puis vous votez pour le démasquer. Démasqué : +1 point pour chaque joueur qui a voté contre lui. Pas démasqué : +3 points pour l'imposteur.", "x": "Une accusation : « Qui est coupable de… ? ». Le groupe vote pour désigner l'accusé. Il a 30 secondes pour se défendre à voix haute, puis le jury vote coupable ou non coupable. Les jurés qui votent comme la majorité gagnent +1 point. Si l'accusé est acquitté, il gagne +3 points."};
 let rulesOpen = null;
 const AVATARS = ["🦊","🐸","🐙","👾","🦄","🐼","🍕","🤖","🐲","🦖","👻","🐧"];
 const AVCOL = ["#e8484f","#2fd06a","#a35ae6","#74d4ef","#f6c94c","#ff8fb1","#ff9a3c","#8ea2ff","#3ccf9e","#d36af0","#f0f0f0","#5bc0eb"];
@@ -1149,6 +1160,7 @@ let me = { name: clean(store.get("pseudo") || ""), av: (() => { const v = parseI
 const PID = (() => { let v = store.get("tribunal-pid"); if (!/^[a-z0-9]{8,20}$/.test(v || "")) { v = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 8); store.set("tribunal-pid", v); } return v; })();
 let codeVisible = false, copied = false, searchStart = 0;
 let draft = { key: "", pick: [], text: "", tiers: [] };
+let MY_A = null;   // ma propre anecdote du tour, pour ne pas devoir la deviner
 let lastMainKey = "";
 
 /* ---------- réseau (PeerJS) ----------
@@ -1333,7 +1345,8 @@ async function leave() {
 }
 
 /* ---------- host logic ---------- */
-const STATS = ["tot", "kind", "mean", "maj", "mino", "did", "det", "guil", "ri", "rx"];
+const STATS = ["tot", "kind", "mean", "maj", "mino", "did", "det", "guil", "ri", "rx", "ra"];
+let A_AUTH = [];   // auteurs des anecdotes : gardés par l'hôte seulement, révélés à la fin du tour
 // classement : map[id] = [points, victoires, défaites]
 function score(map, id, pts, win) { if (!id) return; const r = H[map][id] || [0, 0, 0]; H[map][id] = [r[0] + pts, r[1] + (win ? 1 : 0), r[2] + (win ? 0 : 1)]; }
 function eligible(st, ps) {
@@ -1378,6 +1391,13 @@ function advance() {
   if (!H || H.ph !== "q") return;
   const [m] = H.plan[H.i], s = H.s | 0;
   const ps = players().filter(p => answered(p, H));
+  if (m === "a" && s === 0) {
+    const l = shuffle(ps.filter(p => typeof p.ans.v === "string" && p.ans.v.trim()).map(p => [clean(p.ans.v, MAX_TEXT), p.id]));
+    A_AUTH = l.map(x => x[1]);
+    H.cur = { l: l.map(x => x[0]) };
+    if (l.length < 2) { reveal(); return; }
+    H.s = 1; pushPresence(); return;
+  }
   if (m === "i" && s === 0) {
     const ans = {};
     for (const p of ps) { const n = Number(p.ans.v); if (Number.isFinite(n)) ans[p.id] = Math.round(n * 10) / 10; }
@@ -1432,9 +1452,21 @@ function reveal() {
       H.hist.push({ m, o: a, k: [n0, n1] });
     }
   } else if (m === "a") {
-    const l = ps.filter(p => typeof p.ans.v === "string" && p.ans.v.trim());
-    H.hist.push({ m, t: t70, n: l.length });
-    res = { l: shuffle(l.map(p => [clean(p.ans.v, MAX_TEXT), p.id])) };
+    const texts = (H.cur && H.cur.l) || [], auth = A_AUTH.slice(0, texts.length);
+    const found = texts.map(() => []), pts = {};
+    let good = 0;
+    if ((H.s | 0) === 1) for (const p of ps) {
+      const g = Array.isArray(p.ans.v) ? p.ans.v : [];
+      let ok = 0, ko = 0;
+      texts.forEach((_, k) => {
+        if (auth[k] === p.id || typeof g[k] !== "string") return;
+        if (g[k] === auth[k]) { ok++; found[k].push(p.id); } else ko++;
+      });
+      pts[p.id] = ok; good += ok;
+      const r = H.ra[p.id] || [0, 0, 0]; H.ra[p.id] = [r[0] + ok, r[1] + ok, r[2] + ko];
+    }
+    res = { l: texts.map((_, k) => [k, auth[k] || null, found[k]]), pts };
+    H.hist.push({ m, t: t70, n: texts.length, g: good });
   } else if (m === "t") {
     const n = H.cur.items.length, sum = Array(n).fill(0), cnt = Array(n).fill(0);
     for (const p of ps) if (Array.isArray(p.ans.v)) p.ans.v.slice(0, n).forEach((t, k) => { if (t >= 0 && t <= 4) { sum[k] += t; cnt[k]++; } });
@@ -1495,7 +1527,7 @@ function render(force) {
     const [m] = st.plan[st.i];
     const s = st.s | 0;
     const done = !!(myAns && myAns.g === st.gid && myAns.i === st.i && (myAns.s | 0) === s);
-    const needPs = m === "u" || m === "d" || (m === "x" && s === 0) || (m === "i" && s === 1);
+    const needPs = m === "u" || m === "d" || (m === "x" && s === 0) || (m === "i" && s === 1) || (m === "a" && s === 1);
     key = "q|" + st.gid + "|" + st.i + "|" + s + "|" + done + "|" + (done ? JSON.stringify(ps.map(p => [p.id, p.name, answered(p, st)])) : (needPs ? JSON.stringify(ps.map(p => [p.id, p.name, p.av])) : "")) + "|" + JSON.stringify(st.cur && [st.cur.acc, st.cur.ans, st.cur.imp, st.cur.by]);
     view = () => viewQuestion(st, ps, done);
   }
@@ -1762,6 +1794,7 @@ function viewQuestion(st, ps, done) {
   else if (m === "i") out.push(card(mode.label, "La question était : " + qText(st), "Regardez les réponses. Qui avait une autre question ?"));
   else if (m === "x" && s === 0) out.push(card(mode.label, "Qui est coupable de : " + qText(st).toLowerCase() + " ?", "Le plus désigné passe au tribunal."));
   else if (m === "x") out.push(card("Accusé : " + accName, accName + " est accusé de : " + qText(st).toLowerCase(), s === 1 ? "30 secondes pour se défendre à voix haute !" : (accused ? "Le jury délibère…" : "Coupable ou non coupable ?")));
+  else if (m === "a" && s === 1) out.push(card(mode.label, qText(st), "Associe chaque anecdote à son auteur."));
   else out.push(card(mode.label, qText(st), mode.hint));
 
   if (m === "x" && s === 1) {
@@ -1794,13 +1827,35 @@ function viewQuestion(st, ps, done) {
     out.push(twoChoices(NEVER));
   } else if (m === "x") {
     out.push(twoChoices(VERDICT));
+  } else if (m === "a" && s === 1) {
+    const texts = cur.l || [];
+    const mine = MY_A && MY_A.key === st.gid + "|" + st.i ? MY_A.t : null;
+    let ownIdx = mine == null ? -1 : texts.findIndex(t => t === clean(mine, MAX_TEXT));
+    if (!Array.isArray(draft.g)) draft.g = [];
+    const choices = ps.filter(p => !p.me);
+    const need = texts.map((_, k) => k).filter(k => k !== ownIdx);
+    const btn = h("button", { class: "btn green", disabled: !need.every(k => typeof draft.g[k] === "string") }, "Valider mes réponses");
+    btn.onclick = () => submit(texts.map((_, k) => (k === ownIdx ? null : draft.g[k] || null)));
+    out.push(h("p", { class: "note" }, "Qui a écrit quoi ? Chaque bonne réponse rapporte 1 point."));
+    out.push(h("div", { class: "guesses" }, ...texts.map((t, k) => k === ownIdx
+      ? h("div", { class: "guess own" }, h("p", null, t), h("p", { class: "small muted", style: "margin:0" }, "C'est ton anecdote 😉"))
+      : h("div", { class: "guess" }, h("div", { class: "gnum" }, "#" + (k + 1)), h("p", null, t),
+          h("div", { class: "twho" }, ...choices.map(p => {
+            const on = draft.g[k] === p.id;
+            return h("button", { class: "gpick" + (on ? " on" : ""), "data-id": p.id, "aria-pressed": String(on), onclick: e => {
+              draft.g[k] = p.id;
+              e.currentTarget.parentNode.querySelectorAll(".gpick").forEach(x => { const sel = x.dataset.id === p.id; x.classList.toggle("on", sel); x.setAttribute("aria-pressed", String(sel)); });
+              btn.disabled = !need.every(j => typeof draft.g[j] === "string");
+            } }, avatar(p.av, true), h("span", null, p.name));
+          }))))));
+    out.push(btn);
   } else if (m === "a") {
     const ta = h("textarea", { class: "inp", id: "anecdote", maxlength: String(MAX_TEXT), placeholder: "Raconte en une ou deux phrases…" });
     ta.value = draft.text;
     const counter = h("p", { class: "small muted", style: "text-align:right" }, draft.text.length + "/" + MAX_TEXT);
     const sendBtn = h("button", { class: "btn green", disabled: !draft.text.trim() }, "Envoyer");
     ta.oninput = () => { draft.text = ta.value; counter.textContent = ta.value.length + "/" + MAX_TEXT; sendBtn.disabled = !ta.value.trim(); };
-    sendBtn.onclick = () => submit(clean(draft.text, MAX_TEXT));
+    sendBtn.onclick = () => { const t = clean(draft.text, MAX_TEXT); MY_A = { key: st.gid + "|" + st.i, t }; submit(t); };
     out.push(h("div", { class: "panel stack" }, h("label", { class: "lab", for: "anecdote" }, "Ton anecdote (anonyme)"), ta, counter), sendBtn);
   } else if (m === "t") {
     const items = cur.items || [];
@@ -1858,7 +1913,8 @@ function winLose(st, ps, res) {
   const col = (title, ids, cls) => h("div", { class: "wl " + cls }, h("h3", null, title), ids.length ? h("div", { class: "twho" }, ...ids.map(chip)) : h("p", { class: "small muted", style: "margin:0" }, "Personne"));
   return h("div", { class: "panel winlose" }, col("🏆 Gagnants", Array.isArray(res.win) ? res.win : [], "w"), col("💀 Perdants", Array.isArray(res.lose) ? res.lose : [], "l"));
 }
-function ranking(st, map, title) {
+function ranking(st, map, title, labels) {
+  labels = labels || ["V", "D"];
   const r = st[map] || {}, ids = Object.keys(r);
   if (!ids.length) return null;
   ids.sort((a, b) => (r[b][0] - r[a][0]) || (r[b][1] - r[a][1]) || (r[a][2] - r[b][2]));
@@ -1869,7 +1925,7 @@ function ranking(st, map, title) {
     const lastKey = r[ids[ids.length - 1]][0] + "|" + r[ids[ids.length - 1]][1], firstKey = r[ids[0]][0] + "|" + r[ids[0]][1];
     return h("div", { class: "rk-row" + (key === lastKey && lastKey !== firstKey ? " last" : "") },
       h("span", { class: "rk-pos" }, medal), h("span", { class: "rk-name" }, nameOf(st, id)),
-      h("span", { class: "rk-wl" }, r[id][1] + " V · " + r[id][2] + " D"), h("b", { class: "rk-pts" }, r[id][0] + " pt" + (r[id][0] > 1 ? "s" : "")));
+      h("span", { class: "rk-wl" }, r[id][1] + " " + labels[0] + " · " + r[id][2] + " " + labels[1]), h("b", { class: "rk-pts" }, r[id][0] + " pt" + (r[id][0] > 1 ? "s" : "")));
   });
   return h("div", { class: "panel rk" }, h("div", { class: "panel-title" }, title), ...rows,
     (() => {
@@ -1892,11 +1948,15 @@ function viewReveal(st, ps) {
   else if (m === "p") out.push(splitCols(st, ps, res.c || {}, gChoices(st), ["opt", "opt2"]));
   else if (m === "n") out.push(splitCols(st, ps, res.c || {}, NEVER, ["nice", "mean"]));
   else if (m === "a") {
-    const l = Array.isArray(res.l) ? res.l : [];
-    out.push(l.length ? h("div", { class: "anec" }, ...l.map(([t, id]) => h("div", { class: "a" }, h("div", null, clean(t, MAX_TEXT)), st.showA ? h("div", { class: "by" }, "— " + nameOf(st, id)) : null)))
+    const l = Array.isArray(res.l) ? res.l : [], texts = cur.l || [];
+    out.push(l.length ? h("div", { class: "anec" }, ...l.map(([k, id, f]) => h("div", { class: "a" },
+        h("div", null, clean(texts[k], MAX_TEXT)), h("div", { class: "by" }, "— " + (id ? nameOf(st, id) : "Inconnu")),
+        Array.isArray(f) && f.length ? h("div", { class: "found" }, "✓ Trouvé par : " + f.map(x => nameOf(st, x)).join(", "))
+          : h("div", { class: "found none" }, "Personne n'a trouvé"))))
       : h("p", { class: "note" }, "Aucune anecdote envoyée."));
-    if (!st.showA) out.push(h("p", { class: "note" }, "À vous de deviner qui a écrit quoi, à voix haute."));
-    if (iAmHost && !st.showA && l.length) out.push(h("button", { class: "btn purple", onclick: () => { H.showA = 1; pushPresence(); } }, "Révéler les auteurs"));
+    const pts = res.pts || {}, ids = Object.keys(pts).sort((a, b) => pts[b] - pts[a]);
+    if (ids.length) out.push(h("div", { class: "panel" }, h("div", { class: "panel-title" }, "Points du tour"),
+      h("div", { class: "twho", style: "justify-content:center" }, ...ids.map(id => h("span", { class: "wchip2" }, avatar(avOf(ps, id), true), h("span", null, nameOf(st, id)), h("b", { class: "pts" }, "+" + (pts[id] | 0)))))));
   } else if (m === "t") {
     const items = cur.items || [], votes = res.votes || {};
     const voters = Object.keys(votes);
@@ -1978,7 +2038,7 @@ function recap(st) {
     out.push(sec("n", rows));
   }
 
-  out.push(sec("a", of("a").map(e => line(e.t, pl(e.n | 0, "anecdote") + " racontée" + ((e.n | 0) > 1 ? "s" : "")))));
+  out.push(sec("a", of("a").map(e => line(e.t, pl(e.n | 0, "anecdote") + " · " + pl(e.g | 0, "bonne réponse")))));
   out.push(sec("t", of("t").map(e => line(e.t, "Top : " + clean(e.top, 40) + " · Flop : " + clean(e.low, 40)))));
 
   const iH = of("i");
@@ -2023,7 +2083,7 @@ function viewEnd(st) {
     awards.length ? h("div", { class: "stack" }, ...awards.map(([t, ids, sub]) => h("div", { class: "award" }, avatar(avOf(ps, ids[0])),
       h("div", null, h("div", { class: "t" }, t), h("div", { class: "n" }, ids.map(id => nameOf(st, id)).join(", ")), h("div", { class: "small muted" }, sub)))))
       : h("p", { class: "note" }, "Pas assez de votes pour décerner des titres.")];
-  out.push(ranking(st, "ri", "Classement · L'imposteur"), ranking(st, "rx", "Classement · Le procès"));
+  out.push(ranking(st, "ra", "Classement · Anecdotes", ["✓", "✗"]), ranking(st, "ri", "Classement · L'imposteur"), ranking(st, "rx", "Classement · Le procès"));
   out.push(...recap(st));
   if (ranked.length > 1) out.push(h("div", { class: "panel" }, h("div", { class: "panel-title" }, "Votes reçus au total"),
     h("div", { class: "bars" }, ...ranked.map(id => h("div", { class: "bar-top" }, h("span", null, nameOf(st, id)), h("b", null, String(votes(id))))))));
