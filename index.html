@@ -636,7 +636,6 @@ const DEFAULT_HC = {
     "Qui est le plus susceptible de vomir ce soir ?",
     "Qui est le plus susceptible d'envoyer un nude à la mauvaise personne ?",
     "Qui ment le plus sur sa vie amoureuse ?",
-    "Qui est le plus hypocrite du groupe ?",
     "Qui parle le plus dans le dos des autres ?",
     "Qui a le plus de dossiers sur tout le monde ?"
   ],
@@ -644,7 +643,6 @@ const DEFAULT_HC = {
     "Quels deux potes se sont déjà embrassés, à ton avis ?",
     "Quels deux potes formeraient le couple le plus explosif ?",
     "Quels deux potes finiraient ensemble après une soirée trop arrosée ?",
-    "Qui sont les deux plus hypocrites du groupe ?",
     "Qui seraient les deux pires ex possibles ?",
     "Quels deux potes ont le plus de dossiers l'un sur l'autre ?",
     "Qui sont les deux plus gros fêtards ?",
@@ -715,7 +713,6 @@ const DEFAULT_HC = {
     { q: "Classe tes potes : qui a le plus gros body count ?", items: null },
     { q: "Classe tes potes : qui tient le moins l'alcool ?", items: null },
     { q: "Classe tes potes : avec qui tu sortirais en premier ?", items: null },
-    { q: "Classe tes potes : qui est le plus hypocrite ?", items: null },
     { q: "Classe tes potes : qui est le plus toxique en couple ?", items: null },
     { q: "Les pires turn-offs", items: ["Mauvaise haleine", "Garder ses chaussettes", "Parler de son ex", "Trop d'emojis", "Fautes d'orthographe", "Radin"] },
     { q: "Les alcools de soirée", items: ["Vodka", "Rhum", "Tequila", "Whisky", "Bière", "Rosé", "Jäger"] },
@@ -741,7 +738,6 @@ const DEFAULT_HC = {
     "Mentir sur son body count",
     "Parler dans le dos des autres",
     "Disparaître avec quelqu'un à chaque soirée",
-    "Être le plus hypocrite du groupe",
     "Avoir un dossier sur chacun d'entre nous",
     "Stalker les ex de ses potes",
     "Passer la nuit avec quelqu'un puis le ghoster",
@@ -994,6 +990,14 @@ function defaultsFor() { return VER === "hard" ? DEFAULT_HC : DEFAULT_BANK; }
     if (n) store.set(HC_KEY, JSON.stringify(BANKS.hard));
   }
   store.set("tribunal-hc-ver2", "1");
+})();
+(function removeHypocrisy() {
+  if (store.get("tribunal-hc-ver3") === "1") return;
+  const bad = q => /hypocri/i.test(typeof q === "string" ? q : (q && q.q) || "");
+  let n = 0;
+  for (const m of MODES) { const before = BANKS.hard[m.k].length; BANKS.hard[m.k] = BANKS.hard[m.k].filter(q => !bad(q)); n += before - BANKS.hard[m.k].length; }
+  if (n && store.get(HC_KEY)) store.set(HC_KEY, JSON.stringify(BANKS.hard));
+  store.set("tribunal-hc-ver3", "1");
 })();
 if (store.get("tribunal-ver") === "hard") useVer("hard");
 function switchVer(v) {
