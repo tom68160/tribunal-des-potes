@@ -963,6 +963,67 @@ const HC3 = {
 };
 for (const k in HC3) DEFAULT_HC[k] = DEFAULT_HC[k].concat(HC3[k]);
 
+/* Lot « humour noir » (ajouté au Soft et au Hardcore) */
+const NOIR = {
+  u: [
+    "Qui serait le meilleur pour cacher un cadavre ?",
+    "Qui est le plus susceptible de commettre un meurtre… et de s'en sortir ?",
+    "Qui serait le premier suspect si quelqu'un disparaissait ?",
+    "Qui ferait le meilleur complice pour un braquage ?",
+    "Qui craquerait en premier pendant un interrogatoire de police ?",
+    "Qui jouerait le mieux le tueur en série dans un film ?",
+    "Qui serait le meilleur détective pour résoudre un meurtre ?",
+    "Qui s'évaderait de prison le plus vite ?",
+    "Qui serait le premier à mourir dans un film d'horreur ?",
+    "Qui trahirait le groupe pour sauver sa peau ?",
+    "Qui est le plus susceptible de fonder une secte ?",
+    "Qui aurait toujours l'alibi parfait ?",
+    "Qui finirait dans une émission de faits divers ?",
+    "Qui deviendrait le parrain de la mafia ?"
+  ],
+  d: [
+    "Quels deux potes formeraient le duo de criminels parfait ?",
+    "Quels deux potes cacheraient un corps ensemble sans poser de questions ?",
+    "Qui seraient les deux premiers suspects si on retrouvait un corps ce soir ?",
+    "Quels deux potes se balanceraient l'un l'autre au premier interrogatoire ?",
+    "Quels deux potes survivraient jusqu'à la fin d'un film d'horreur ?",
+    "Quels deux potes feraient le meilleur duo d'enquêteurs ?"
+  ],
+  p: [
+    { a: ["Aider ton meilleur pote à cacher un corps", "Le dénoncer à la police"] },
+    { a: ["Être accusé d'un crime que tu n'as pas commis", "Commettre un crime sans jamais être soupçonné"] },
+    { a: ["Être le tueur dans un film d'horreur", "Être la première victime"] },
+    { a: ["Passer un an en prison", "Passer un an sans téléphone"] },
+    { a: ["Savoir qui ici garde le plus de secrets", "Savoir qui ici te trahirait"] },
+    { a: ["Être le cerveau du braquage", "Être le chauffeur"] }
+  ],
+  n: [
+    "Je n'ai jamais regardé tout un documentaire de faits divers d'une traite",
+    "Je n'ai jamais imaginé le crime parfait",
+    "Je n'ai jamais vérifié derrière le rideau de douche en rentrant chez moi",
+    "Je n'ai jamais menti à un policier"
+  ],
+  a: [
+    "La fois où tu as été accusé à tort",
+    "Ta pire embrouille avec la police (ou presque)"
+  ],
+  t: [
+    { q: "Classe tes potes : qui serait le meilleur pour cacher un cadavre ?", items: null },
+    { q: "Classe tes potes : qui craquerait en premier en garde à vue ?", items: null },
+    { q: "Classe tes potes : qui survivrait le plus longtemps dans un film d'horreur ?", items: null }
+  ],
+  x: [
+    "Avoir déjà réfléchi à l'endroit parfait pour cacher un corps",
+    "Avoir un alibi tout prêt pour chaque soirée",
+    "Regarder beaucoup trop de documentaires sur les tueurs en série",
+    "Toujours être le premier à accuser les autres",
+    "Avoir une tête de suspect idéal",
+    "Rire au mauvais moment à un enterrement",
+    "Préparer sa vengeance pendant des années"
+  ]
+};
+for (const k in NOIR) { DEFAULT_BANK[k] = DEFAULT_BANK[k].concat(NOIR[k]); DEFAULT_HC[k] = DEFAULT_HC[k].concat(NOIR[k]); }
+
 const MODES = [
   { k: "u", label: "Une seule réponse", hint: "Vote pour un joueur", def: 3 },
   { k: "d", label: "Deux réponses", hint: "Vote pour deux joueurs", def: 2 },
@@ -1125,6 +1186,21 @@ function defaultsFor() { return VER === "hard" ? DEFAULT_HC : DEFAULT_BANK; }
     if (n) store.set(HC_KEY, JSON.stringify(BANKS.hard));
   }
   store.set("tribunal-hc-ver4", "1");
+})();
+(function addNoir() {
+  if (store.get("tribunal-noir-v1") === "1") return;
+  const add = sanitizeBank(Object.assign({}, DEFAULT_BANK, NOIR));
+  [["soft", BANK_KEY], ["hard", HC_KEY]].forEach(([v, key]) => {
+    if (!store.get(key)) return;
+    let n = 0;
+    for (const m of MODES) {
+      if (!NOIR[m.k]) continue;
+      const have = new Set(BANKS[v][m.k].map(q => bankKey(m.k, q)));
+      add[m.k].forEach(q => { if (!have.has(bankKey(m.k, q))) { BANKS[v][m.k].push(q); n++; } });
+    }
+    if (n) store.set(key, JSON.stringify(BANKS[v]));
+  });
+  store.set("tribunal-noir-v1", "1");
 })();
 if (store.get("tribunal-ver") === "hard") useVer("hard");
 function switchVer(v) {
